@@ -26,6 +26,9 @@ THE SOFTWARE.
 lexer grammar MySqlLexer;
 
 channels { MYSQLCOMMENT, ERRORCHANNEL }
+options {
+    superClass=MySqlBaseLexer;
+    }
 
 // SKIP
 
@@ -76,6 +79,7 @@ DECLARE:                             'DECLARE';
 DEFAULT:                             'DEFAULT';
 DELAYED:                             'DELAYED';
 DELETE:                              'DELETE';
+DELIMITER:                           'DELIMITER';
 DESC:                                'DESC';
 DESCRIBE:                            'DESCRIBE';
 DETERMINISTIC:                       'DETERMINISTIC';
@@ -1074,13 +1078,28 @@ DOUBLE_QUOTE_SYMB:                   '"';
 REVERSE_QUOTE_SYMB:                  '`';
 COLON_SYMB:                          ':';
 
-
-
 // Charsets
 
 CHARSET_REVERSE_QOUTE_STRING:        '`' CHARSET_NAME '`';
 
+// Custom delimiter
 
+
+CUSTOM_DELIMITER:
+    SET_DELIMITER
+    | GET_DELIMITER
+    ;
+
+GET_DELIMITER:
+    {(isDelimiterChanged() && isCustomDelimiter())}? CUSTOM_DELIMITER_VALUE
+    ;
+
+SET_DELIMITER:
+    {isDelimiterPrevious() && setCustomDelimiter()}? CUSTOM_DELIMITER_VALUE
+    ;
+
+fragment CUSTOM_DELIMITER_VALUE: .
+    ;
 
 // File's sizes
 
@@ -1164,8 +1183,6 @@ fragment BQUOTA_STRING:              '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                  [0-9A-F];
 fragment DEC_DIGIT:                  [0-9];
 fragment BIT_STRING_L:               'B' '\'' [01]+ '\'';
-
-
 
 // Last tokens must generate Errors
 

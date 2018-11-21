@@ -25,7 +25,9 @@ THE SOFTWARE.
 
 parser grammar MySqlParser;
 
-options { tokenVocab=MySqlLexer; }
+options {
+    tokenVocab=MySqlLexer;
+    }
 
 
 // Top Level Description
@@ -35,14 +37,19 @@ root
     ;
 
 sqlStatements
-    : (sqlStatement MINUSMINUS? SEMI | emptyStatement)*
-    (sqlStatement (MINUSMINUS? SEMI)? | emptyStatement)
+    : (sqlStatement MINUSMINUS? delimiter | emptyStatement | DELIMITER delimiter)*
+    (sqlStatement (MINUSMINUS? delimiter)? | emptyStatement | DELIMITER delimiter)
     ;
 
 sqlStatement
     : ddlStatement | dmlStatement | transactionStatement
     | replicationStatement | preparedStatement
     | administrationStatement | utilityStatement
+    ;
+
+delimiter
+    : SEMI
+    | CUSTOM_DELIMITER
     ;
 
 emptyStatement
