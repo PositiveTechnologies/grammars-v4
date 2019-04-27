@@ -49,15 +49,13 @@ if_stmt: IF test COLON suite (elif_clause)* (else_clause)?;
 elif_clause: ELIF test COLON suite;
 while_stmt: WHILE test COLON suite (else_clause)?;
 for_stmt: FOR exprlist IN testlist COLON suite (else_clause)?;
-try_stmt: (TRY COLON suite
-           ((except_clause+ else_clause? finaly_clause?)
-            |finaly_clause));
+try_stmt: TRY COLON suite ((except_clause+ else_clause? finally_clause?) | finally_clause);
 with_stmt: WITH with_item (COMMA with_item)*  COLON suite;
 with_item: test (AS expr)?;
 // NB compile.c makes sure that the default except clause is last
 except_clause: EXCEPT (test (AS NAME)?)? COLON suite;
 else_clause: ELSE COLON suite;
-finaly_clause: FINALLY COLON suite;
+finally_clause: FINALLY COLON suite;
 suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
 
 simple_stmt: small_stmt (SEMI_COLON small_stmt)* (SEMI_COLON)? (NEWLINE | EOF);
