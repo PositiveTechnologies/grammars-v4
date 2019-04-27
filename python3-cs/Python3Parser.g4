@@ -74,9 +74,9 @@ small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
 
 expr_stmt: testlist_star_expr | annassign | augassign | assign;
 
-assign: testlist_star_expr (ASSIGN (yield_expr|testlist_star_expr))*;
+assign: testlist_star_expr (ASSIGN testlist_star_expr)* (ASSIGN yield_expr)?;
 
-annassign: testlist_star_expr COLON test (ASSIGN test)? (yield_expr|testlist);
+annassign: testlist_star_expr COLON test (ASSIGN testlist)?;
 
 testlist_star_expr: (test|star_expr) (COMMA (test|star_expr))* (COMMA)?;
 
