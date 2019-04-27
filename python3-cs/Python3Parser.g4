@@ -41,6 +41,38 @@ single_input: NEWLINE | simple_stmt | compound_stmt NEWLINE;
 file_input: (NEWLINE | stmt)* EOF;
 eval_input: testlist NEWLINE* EOF;
 
+stmt: simple_stmt | compound_stmt;
+
+compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt;
+async_stmt: ASYNC (with_stmt | for_stmt);
+if_stmt: IF test COLON suite (elif_clause)* (else_clause)?;
+elif_clause: ELIF test COLON suite;
+while_stmt: WHILE test COLON suite (else_clause)?;
+for_stmt: FOR exprlist IN testlist COLON suite (else_clause)?;
+try_stmt: (TRY COLON suite
+           ((except_clause+ else_clause? finaly_clause?)
+            |finaly_clause));
+with_stmt: WITH with_item (COMMA with_item)*  COLON suite;
+with_item: test (AS expr)?;
+// NB compile.c makes sure that the default except clause is last
+except_clause: EXCEPT (test (AS NAME)?)? COLON suite;
+else_clause: ELSE COLON suite;
+finaly_clause: FINALLY COLON suite;
+suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
+
+simple_stmt: small_stmt (SEMI_COLON small_stmt)* (SEMI_COLON)? (NEWLINE | EOF);
+small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
+             import_stmt | global_stmt | nonlocal_stmt | assert_stmt);
+
+expr_stmt: testlist_star_expr | annassign | augassign | assign;
+
+assign: testlist_star_expr (ASSIGN testlist_star_expr)* (ASSIGN yield_expr)?;
+
+annassign: testlist_star_expr COLON test (ASSIGN testlist)?;
+
+augassign: testlist_star_expr op=('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
+              '<<=' | '>>=' | '**=' | '//=') (yield_expr|testlist);
+
 decorator: AT dotted_name ( OPEN_PAREN (arglist)? CLOSE_PAREN )? NEWLINE;
 decorators: decorator+;
 decorated: decorators (classdef | funcdef);
@@ -63,25 +95,10 @@ named_parameter: NAME (COLON test)?;
 varargslist
     : (vardef_parameters COMMA)? varargs (COMMA vardef_parameters)? (COMMA varkwargs)
     | vardef_parameters;
-    
+
 varargs: STAR NAME;
 varkwargs: POWER NAME;
 vfpdef: NAME;
-stmt: simple_stmt | compound_stmt;
-simple_stmt: small_stmt (SEMI_COLON small_stmt)* (SEMI_COLON)? (NEWLINE | EOF);
-small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
-             import_stmt | global_stmt | nonlocal_stmt | assert_stmt);
-
-expr_stmt: testlist_star_expr | annassign | augassign | assign;
-
-assign: testlist_star_expr (ASSIGN testlist_star_expr)* (ASSIGN yield_expr)?;
-
-annassign: testlist_star_expr COLON test (ASSIGN testlist)?;
-
-testlist_star_expr: (test|star_expr) (COMMA (test|star_expr))* (COMMA)?;
-
-augassign: testlist_star_expr op=('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
-              '<<=' | '>>=' | '**=' | '//=') (yield_expr|testlist);
 
 // For normal and annotated assignments, additional restrictions enforced by the interpreter
 del_stmt: DEL exprlist;
@@ -107,23 +124,6 @@ dotted_name
 global_stmt: GLOBAL NAME (COMMA NAME)*;
 nonlocal_stmt: NONLOCAL NAME (COMMA NAME)*;
 assert_stmt: ASSERT test (COMMA test)?;
-
-compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt;
-async_stmt: ASYNC (with_stmt | for_stmt);
-if_stmt: IF test COLON suite (elif_clause)* (else_clause)?;
-elif_clause: ELIF test COLON suite;
-while_stmt: WHILE test COLON suite (else_clause)?;
-for_stmt: FOR exprlist IN testlist COLON suite (else_clause)?;
-try_stmt: (TRY COLON suite
-           ((except_clause+ else_clause? finaly_clause?) 
-            |finaly_clause));
-with_stmt: WITH with_item (COMMA with_item)*  COLON suite;
-with_item: test (AS expr)?;
-// NB compile.c makes sure that the default except clause is last
-except_clause: EXCEPT (test (AS NAME)?)? COLON suite;
-else_clause: ELSE COLON suite;
-finaly_clause: FINALLY COLON suite;
-suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
 
 test: logical_test (IF logical_test ELSE test)? | lambdef;
 test_nocond: logical_test | lambdef_nocond;
@@ -163,6 +163,7 @@ subscriptlist: subscript (COMMA subscript)* (COMMA)?;
 subscript: test | (test)? COLON (test)? (sliceop)?;
 sliceop: COLON (test)?;
 exprlist: (expr|star_expr) (COMMA (expr|star_expr))* (COMMA)?;
+testlist_star_expr: (test|star_expr) (COMMA (test|star_expr))* (COMMA)?;
 testlist: test (COMMA test)* (COMMA)?;
 dictorsetmaker: ( ((test COLON test | POWER expr)
                    (comp_for | (COMMA (test COLON test | POWER expr))* (COMMA)?)) |
