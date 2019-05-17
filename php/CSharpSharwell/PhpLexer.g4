@@ -56,7 +56,7 @@ public override IToken NextToken()
         if (string.Equals(token.Text, "</script>", System.StringComparison.Ordinal))
         {
             _phpScript = false;
-            type = ScriptClose;
+            type = HtmlScriptClose;
         }
         else
         {
@@ -148,13 +148,13 @@ bool CheckHeredocEnd(string text)
 
 SeaWhitespace:  [ \t\r\n]+ -> channel(HIDDEN);
 HtmlText:       ~[<#]+;
-XmlStart:       '<' '?' 'xml' -> pushMode(XML);
+XmlStart:       '<?xml' -> pushMode(XML);
 PHPStartEcho:   PhpStartEchoFragment -> type(Echo), pushMode(PHP);
 PHPStart:       PhpStartFragment -> channel(SkipChannel), pushMode(PHP);
-HtmlScriptOpen: '<' 'script' { _scriptTag = true; } -> pushMode(INSIDE);
-HtmlStyleOpen:  '<' 'style' { _styleTag = true; } -> pushMode(INSIDE);
-HtmlComment:    '<' '!' '--' .*? '-->' -> channel(HIDDEN);
-HtmlDtd:        '<' '!' .*? '>';
+HtmlScriptOpen: '<script' { _scriptTag = true; } -> pushMode(INSIDE);
+HtmlStyleOpen:  '<style' { _styleTag = true; } -> pushMode(INSIDE);
+HtmlComment:    '<!--' .*? '-->' -> channel(HIDDEN);
+HtmlDtd:        '<!' .*? '>';
 HtmlOpen:       '<' -> pushMode(INSIDE);
 Shebang
     : '#' { _input.La(-2) <= 0 || _input.La(-2) == '\r' || _input.La(-2) == '\n' }? '!' ~[\r\n]*
@@ -217,8 +217,8 @@ ErrorHtmlDoubleQuote:          .          -> channel(ErrorLexem);
 // TODO: parse xml attributes.
 mode XML;
 
-XmlText:                  ~[?]+;
-XmlClose:                 '?' '>' -> popMode;
+XmlText:                  ~'?'+;
+XmlClose:                 '?>' -> popMode;
 XmlText2:                 '?' -> type(XmlText);
 
 // Parse JavaScript with https://github.com/antlr/grammars-v4/tree/master/ecmascript if necessary.
@@ -226,7 +226,10 @@ XmlText2:                 '?' -> type(XmlText);
 mode SCRIPT;
 
 ScriptText:               ~[<]+;
-ScriptClose:              '<' '/' 'script'? '>' -> popMode;
+// TODO: handle JS strings, but handle <?php tags inside them
+//ScriptString:             '"' (~'"' | '\\' ('\r'? '\n' | .))* '"' -> type(ScriptText);
+//ScriptString2:            '\'' (~'\'' | '\\' ('\r'? '\n' | .))* '\'' -> type(ScriptText);
+HtmlScriptClose:          '</' 'script'? '>' -> popMode;
 PHPStartInsideScriptEcho: PhpStartEchoFragment -> type(Echo), pushMode(PHP);
 PHPStartInsideScript:     PhpStartFragment -> channel(SkipChannel), pushMode(PHP);
 ScriptText2:              '<' -> type(ScriptText);
