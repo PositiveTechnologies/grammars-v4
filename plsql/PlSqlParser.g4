@@ -3703,12 +3703,28 @@ cursor_expression
     ;
 
 logical_expression
-    : multiset_expression (IS NOT?
-        (NULL_ | NAN | PRESENT | INFINITE | A_LETTER SET | EMPTY | OF TYPE?
-        '(' ONLY? type_spec (',' type_spec)* ')'))*
-    | NOT logical_expression
-    | logical_expression AND logical_expression
-    | logical_expression OR logical_expression
+    : unary_logical_expression
+    | logical_expression binary_logical_operator logical_expression
+    ;
+
+unary_logical_expression
+    : NOT? multiset_expression (is_not_operator logical_operation)*
+    ;
+
+binary_logical_operator
+    : AND
+    | OR
+    ;
+
+is_not_operator:
+    IS NOT?
+    ;
+
+logical_operation:
+        (NULL_ 
+        | NAN | PRESENT 
+        | INFINITE | A_LETTER SET | EMPTY 
+        | OF TYPE? '(' ONLY? type_spec (',' type_spec)* ')')
     ;
 
 multiset_expression
