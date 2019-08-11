@@ -235,7 +235,6 @@ atom
     | OPEN_BRACKET testlist_comp? CLOSE_BRACKET
     | OPEN_BRACE dictorsetmaker? CLOSE_BRACE
     | REVERSE_QUOTE testlist COMMA? REVERSE_QUOTE
-    | dotted_name
     | ELLIPSIS
     | name
     | PRINT
@@ -278,9 +277,13 @@ integer
     ;
 
 trailer
+    : DOT name arguments?
+    | arguments
+    ;
+
+arguments
     : OPEN_PAREN arglist? CLOSE_PAREN
     | OPEN_BRACKET subscriptlist CLOSE_BRACKET
-    | DOT name
     ;
 
 subscriptlist
