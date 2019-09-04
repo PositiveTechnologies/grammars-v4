@@ -47,7 +47,6 @@ stmt
     | compound_stmt
     ;
 
-//---------------- compound statement ----------------------------------------------------------------------------------
 compound_stmt
     : IF cond=test COLON suite elif_clause* else_clause?                             #if_stmt
     | WHILE test COLON suite else_clause?                                            #while_stmt
@@ -88,15 +87,11 @@ with_item
 except_clause
     : EXCEPT (test (COMMA name | AS name)?)? COLON suite
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// ------ class definition ---------------------------------------------------------------------------------------------
 classdef
     : CLASS name (OPEN_PAREN arglist? CLOSE_PAREN)? COLON suite
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// ------- function and its parameters definition ----------------------------------------------------------------------
 funcdef
     : ASYNC? DEF name OPEN_PAREN typedargslist? CLOSE_PAREN (ARROW test)? COLON suite
     ;
@@ -129,9 +124,7 @@ def_parameter
 named_parameter
     : name (COLON test)?
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------- simple statement -------------------------------------------------------------------------------------------
 simple_stmt
     : small_stmt (SEMI_COLON small_stmt)* SEMI_COLON? (NEWLINE | EOF)
     ;
@@ -156,9 +149,7 @@ small_stmt
     | ASSERT test (COMMA test)?                                                       #assert_stmt
     | NONLOCAL name (COMMA name)*                                                     #nonlocal_stmt // Python 3
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------- expression statement ---------------------------------------------------------------------------------------
 testlist_star_expr
     : ((test | star_expr) COMMA)+ (test | star_expr)?
     | testlist
@@ -191,9 +182,7 @@ assign_part
 exprlist
     : expr (COMMA expr)* COMMA?
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------- import statement -------------------------------------------------------------------------------------------
 import_as_names
     : import_as_name (COMMA import_as_name)* COMMA?
     ;
@@ -210,9 +199,7 @@ dotted_as_names
 dotted_as_name
     : dotted_name (AS name)?
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------------------------- test, lambda and its parameters ----------------------------------------------------------
 /*
  * Warning!
  * According to https://docs.python.org/3/reference/expressions.html#lambda LAMBDA should be followed by
@@ -249,9 +236,7 @@ varargs
 varkwargs
     : POWER name
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------------------------- tests and comparisons --------------------------------------------------------------------
 logical_test
     : comparison
     | NOT logical_test
@@ -263,9 +248,7 @@ comparison
     : comparison (LESS_THAN | GREATER_THAN | EQUALS | GT_EQ | LT_EQ | NOT_EQ_1 | NOT_EQ_2 | optional=NOT? IN | IS optional=NOT?) comparison
     | expr
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------------------------- expressions ------------------------------------------------------------------------------
 expr
     : AWAIT? atom trailer*
     | <assoc=right> expr op=POWER expr
@@ -278,15 +261,11 @@ expr
     | expr op=OR_OP expr
     ;
 
-//----------------------------------------------------------------------------------------------------------------------
-
-// -------------------------- atom -------------------------------------------------------------------------------------
 atom
     : OPEN_PAREN (yield_expr | testlist_comp)? CLOSE_PAREN
     | OPEN_BRACKET testlist_comp? CLOSE_BRACKET
     | OPEN_BRACE dictorsetmaker? CLOSE_BRACE
     | REVERSE_QUOTE testlist COMMA? REVERSE_QUOTE
-    | dotted_name
     | ELLIPSIS
     | name
     | PRINT
@@ -333,9 +312,7 @@ integer
     | HEX_INTEGER
     | BIN_INTEGER
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------------------------- yield_expr -------------------------------------------------------------------------------
 yield_expr
     : YIELD yield_arg?
     ;
@@ -344,15 +321,17 @@ yield_arg
     : FROM test
     | testlist
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// -------------------------- trailer ----------------------------------------------------------------------------------
 // TODO: this way we can pass: `f(x for x in i, a)`, but it's invalid.
 // See: https://docs.python.org/3/reference/expressions.html#calls
 trailer
+    : DOT name arguments?
+    | arguments
+    ;
+
+arguments
     : OPEN_PAREN arglist? CLOSE_PAREN
     | OPEN_BRACKET subscriptlist CLOSE_BRACKET
-    | DOT name
     ;
 
 arglist
@@ -381,9 +360,7 @@ subscript
 sliceop
     : COLON test?
     ;
-//----------------------------------------------------------------------------------------------------------------------
 
-// --------------------- comprehension ---------------------------------------------------------------------------------
 comp_for
     : FOR exprlist IN logical_test comp_iter?
     ;
@@ -392,4 +369,3 @@ comp_iter
     : comp_for
     | IF test comp_iter?
     ;
-//----------------------------------------------------------------------------------------------------------------------

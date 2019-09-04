@@ -962,7 +962,7 @@ enable_trigger
      ;
 
 lock_table
-     : LOCK TABLE table_name IN (SHARE | EXCLUSIVE) MODE (WAIT seconds=DECIMAL | NOWAIT)? ';'? 
+     : LOCK TABLE table_name IN (SHARE | EXCLUSIVE) MODE (WAIT seconds=DECIMAL | NOWAIT)? ';'?
      ;
 
 // https://docs.microsoft.com/en-us/sql/t-sql/statements/truncate-table-transact-sql
@@ -3567,14 +3567,7 @@ default_value
 constant
     : STRING // string, datetime or uniqueidentifier
     | BINARY
-    | sign? DECIMAL
-    | sign? (REAL | FLOAT)  // float or decimal
-    | sign? dollar='$' (DECIMAL | FLOAT)       // money
-    ;
-
-sign
-    : '+'
-    | '-'
+    | sign=('+' | '-')? dollar='$'? (DECIMAL | REAL |  FLOAT)       // float, decimal or money
     ;
 
 // https://msdn.microsoft.com/en-us/library/ms175874.aspx

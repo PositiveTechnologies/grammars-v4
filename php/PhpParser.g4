@@ -30,22 +30,17 @@ options { tokenVocab=PhpLexer; }
 // Also see here: https://github.com/antlr/grammars-v4/tree/master/html
 
 htmlDocument
-    : Shebang? htmlElementOrPhpBlock* EOF
+    : Shebang? (inlineHtml | phpBlock)* EOF
     ;
 
-htmlElementOrPhpBlock
-    : htmlElements
-    | phpBlock
-    | scriptTextPart
-    ;
-
-htmlElements
+inlineHtml
     : htmlElement+
+    | scriptText
     ;
 
+// TODO: split into html, css and xml elements
 htmlElement
     : HtmlDtd
-    | HtmlScriptOpen
     | HtmlClose
     | HtmlStyleOpen
     | HtmlOpen
@@ -64,21 +59,22 @@ htmlElement
     | HtmlDoubleQuoteString
 
     | StyleBody
-    
-    | ScriptClose
+
+    | HtmlScriptOpen
+    | HtmlScriptClose
 
     | XmlStart XmlText* XmlClose
     ;
 
 // Script
-// Parse JavaScript with https://github.com/antlr/grammars-v4/tree/master/ecmascript if necessary.
-    
-scriptTextPart
+// Parse JavaScript with https://github.com/antlr/grammars-v4/tree/master/javascript if necessary.
+
+scriptText
     : ScriptText+
     ;
 
 // PHP
-    
+
 phpBlock
     : importStatement* topStatement+
     ;
@@ -95,7 +91,7 @@ topStatement
     | classDeclaration
     | globalConstantDeclaration
     ;
-    
+
 useDeclaration
     : Use (Function | Const)? useDeclarationContentList ';'
     ;
@@ -103,7 +99,7 @@ useDeclaration
 useDeclarationContentList
     : '\\'? useDeclarationContent (',' '\\'? useDeclarationContent)*
     ;
-    
+
 useDeclarationContent
     : namespaceNameList (As identifier)?
     ;
@@ -126,11 +122,11 @@ functionDeclaration
 
 classDeclaration
     : attributes Private? modifier? Partial? (
-      classEntryType identifier typeParameterListInBrackets? (Extends qualifiedStaticTypeRef)? (Implements interfaceList)? 
+      classEntryType identifier typeParameterListInBrackets? (Extends qualifiedStaticTypeRef)? (Implements interfaceList)?
     | Interface identifier typeParameterListInBrackets? (Extends interfaceList)? )
       OpenCurlyBracket classStatement* '}'
     ;
-    
+
 classEntryType
     : Class
     | Trait
@@ -238,7 +234,7 @@ emptyStatement
 blockStatement
     : OpenCurlyBracket innerStatementList '}'
     ;
-    
+
 ifStatement
     : If parenthesis statement elseIfStatement* elseStatement?
     | If parenthesis ':' innerStatementList elseIfColonStatement* elseColonStatement? EndIf ';'
@@ -267,7 +263,7 @@ whileStatement
 doWhileStatement
     : Do statement While parenthesis ';'
     ;
-    
+
 forStatement
     : For '(' forInit? ';' expressionList? ';' forUpdate? ')' (statement | ':' innerStatementList EndFor ';' )
     ;
@@ -275,11 +271,11 @@ forStatement
 forInit
     : expressionList
     ;
-    
+
 forUpdate
     : expressionList
     ;
-    
+
 switchStatement
     : Switch parenthesis (OpenCurlyBracket ';'? switchBlock* '}' | ':' ';'? switchBlock* EndSwitch ';')
     ;
@@ -287,15 +283,15 @@ switchStatement
 switchBlock
     : ((Case expression | Default) (':' | ';'))+ innerStatementList
     ;
-    
+
 breakStatement
     : Break expression? ';'
     ;
-    
+
 continueStatement
     : Continue expression? ';'
     ;
-    
+
 returnStatement
     : Return expression? ';'
     ;
@@ -307,15 +303,15 @@ expressionStatement
 unsetStatement
     : Unset '(' chainList ')' ';'
     ;
-    
+
 foreachStatement
-    : Foreach 
+    : Foreach
         ( '(' chain As '&'? chain ('=>' '&'? chain)? ')'
         | '(' expression As chain ('=>' '&'? chain)? ')'
         | '(' chain As List '(' assignmentList ')' ')' )
       (statement | ':' innerStatementList EndForeach ';')
     ;
-    
+
 tryCatchFinally
     : Try blockStatement (catchClause+ finallyStatement? | catchClause* finallyStatement)
     ;
@@ -327,11 +323,11 @@ catchClause
 finallyStatement
     : Finally blockStatement
     ;
-    
+
 throwStatement
     : Throw expression ';'
     ;
-    
+
 gotoStatement
     : Goto identifier ';'
     ;
@@ -342,11 +338,6 @@ declareStatement
 
 inlineHtmlStatement
     : inlineHtml+
-    ;
-
-inlineHtml
-    : htmlElements
-    | scriptTextPart
     ;
 
 declareList
@@ -406,11 +397,11 @@ traitAdaptationStatement
 traitPrecedence
     : qualifiedNamespaceName '::' identifier InsteadOf qualifiedNamespaceNameList ';'
     ;
-    
+
 traitAlias
     : traitMethodReference As (memberModifier | memberModifier? identifier) ';'
     ;
-    
+
 traitMethodReference
     : (qualifiedNamespaceName '::')? identifier
     ;
@@ -458,7 +449,7 @@ parenthesis
 expression
     : Clone expression                                         #CloneExpression
     | newExpr                                                  #NewExpression
-    
+
     | stringConstant '[' expression ']'                        #IndexerExpression
 
     | '(' castOperation ')' expression                         #CastExpression
@@ -588,7 +579,7 @@ qualifiedNamespaceNameList
 arguments
     : '(' ( actualArgument (',' actualArgument)* | yieldExpression)? ')'
     ;
-    
+
 actualArgument
     : '...'? expression
     | '&' chain
@@ -601,7 +592,7 @@ constantInititalizer
     | '[' (constantArrayItemList ','?)? ']'
     | ('+'|'-') constantInititalizer
     ;
-    
+
 constantArrayItemList
     : constantArrayItem (',' constantArrayItem)*
     ;
@@ -609,7 +600,7 @@ constantArrayItemList
 constantArrayItem
     : constantInititalizer ('=>' constantInititalizer)?
     ;
-    
+
 constant
     : Null
     | literalConstant
@@ -617,7 +608,7 @@ constant
     | classConstant
     | qualifiedNamespaceName
     ;
-    
+
 literalConstant
     : Real
     | BooleanConstant
@@ -640,7 +631,7 @@ classConstant
 stringConstant
     : Label
     ;
-    
+
 string
     : StartHereDoc HereDocText+
     | StartNowDoc HereDocText+
@@ -674,7 +665,7 @@ functionCallName
     | classConstant
     | chainBase
     ;
-    
+
 actualArguments
     : genericDynamicArgs? arguments squareCurlyExpression*
     ;
@@ -715,7 +706,7 @@ modifier
     : Abstract
     | Final
     ;
-    
+
 identifier
     : Label
 
@@ -839,7 +830,7 @@ memberModifier
     | Abstract
     | Final
     ;
-    
+
 magicConstant
     : Namespace__
     | Class__
@@ -880,7 +871,7 @@ primitiveType
     | ObjectType
     | Array
     ;
-    
+
 castOperation
     : BoolType
     | Int8Cast

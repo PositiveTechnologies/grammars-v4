@@ -1,7 +1,7 @@
 /*
 PHP grammar.
 The MIT License (MIT).
-Copyright (c) 2015-2017, Ivan Kochurkin (kvanttt@gmail.com), Positive Technologies.
+Copyright (c) 2015-2019, Ivan Kochurkin (kvanttt@gmail.com), Positive Technologies.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,10 @@ bool _insideString;
 
 public override IToken NextToken()
 {
-    CommonToken token = (CommonToken)base.NextToken();
+    IToken token = base.NextToken();
+
+    int type = token.Type;
+    int channel = token.Channel;
 
     if (token.Type == PHPEnd || token.Type == PHPEndSingleLineComment)
     {
@@ -49,24 +52,26 @@ public override IToken NextToken()
             PopMode(); // exit from SingleLineComment mode.
         }
         PopMode(); // exit from PHP mode.
-        
+
         if (string.Equals(token.Text, "</script>", System.StringComparison.Ordinal))
         {
             _phpScript = false;
-            token.Type = ScriptClose;
+            type = HtmlScriptClose;
         }
         else
         {
             // Add semicolon to the end of statement if it is absente.
             // For example: <?php echo "Hello world" ?>
-            if (_prevTokenType == SemiColon || _prevTokenType == Colon
-                || _prevTokenType == OpenCurlyBracket || _prevTokenType == CloseCurlyBracket)
+            if (_prevTokenType == SemiColon ||
+                _prevTokenType == Colon ||
+                _prevTokenType == OpenCurlyBracket ||
+                _prevTokenType == CloseCurlyBracket)
             {
-                token.Channel = SkipChannel;
+                channel = SkipChannel;
             }
             else
             {
-                token.Type = SemiColon;
+                type = SemiColon;
             }
         }
     }
@@ -98,11 +103,11 @@ public override IToken NextToken()
                     PopMode();
                     if (token.Text.Trim().EndsWith(";"))
                     {
-                        token.Type = SemiColon;
+                        type = SemiColon;
                     }
                     else
                     {
-                        token.Channel = SkipChannel;
+                        channel = SkipChannel;
                     }
                 }
                 break;
@@ -116,7 +121,20 @@ public override IToken NextToken()
         }
     }
 
-    return token;
+    return type == token.Type && channel == token.Channel
+       ? token
+#if PTPM
+        : new PT.PM.AntlrUtils.LightToken((PT.PM.AntlrUtils.LightInputStream)token.InputStream, type, channel,
+            token.TokenIndex, token.StartIndex, token.StopIndex);
+#else
+        : new CommonToken(new Tuple<ITokenSource, ICharStream>(token.TokenSource, token.InputStream), type,
+            channel, token.StartIndex, token.StopIndex)
+        {
+            Text = token.Text,
+            Line = token.Line,
+            Column = token.Column
+        };
+#endif
 }
 
 bool CheckHeredocEnd(string text)
@@ -130,13 +148,13 @@ bool CheckHeredocEnd(string text)
 
 SeaWhitespace:  [ \t\r\n]+ -> channel(HIDDEN);
 HtmlText:       ~[<#]+;
-XmlStart:       '<' '?' 'xml' -> pushMode(XML);
+XmlStart:       '<?xml' -> pushMode(XML);
 PHPStartEcho:   PhpStartEchoFragment -> type(Echo), pushMode(PHP);
 PHPStart:       PhpStartFragment -> channel(SkipChannel), pushMode(PHP);
-HtmlScriptOpen: '<' 'script' { _scriptTag = true; } -> pushMode(INSIDE);
-HtmlStyleOpen:  '<' 'style' { _styleTag = true; } -> pushMode(INSIDE);
-HtmlComment:    '<' '!' '--' .*? '-->' -> channel(HIDDEN);
-HtmlDtd:        '<' '!' .*? '>';
+HtmlScriptOpen: '<script' { _scriptTag = true; } -> pushMode(INSIDE);
+HtmlStyleOpen:  '<style' { _styleTag = true; } -> pushMode(INSIDE);
+HtmlComment:    '<!--' .*? '-->' -> channel(HIDDEN);
+HtmlDtd:        '<!' .*? '>';
 HtmlOpen:       '<' -> pushMode(INSIDE);
 Shebang
     : '#' { _input.La(-2) <= 0 || _input.La(-2) == '\r' || _input.La(-2) == '\n' }? '!' ~[\r\n]*
@@ -199,8 +217,8 @@ ErrorHtmlDoubleQuote:          .          -> channel(ErrorLexem);
 // TODO: parse xml attributes.
 mode XML;
 
-XmlText:                  ~[?]+;
-XmlClose:                 '?' '>' -> popMode;
+XmlText:                  ~'?'+;
+XmlClose:                 '?>' -> popMode;
 XmlText2:                 '?' -> type(XmlText);
 
 // Parse JavaScript with https://github.com/antlr/grammars-v4/tree/master/ecmascript if necessary.
@@ -208,7 +226,10 @@ XmlText2:                 '?' -> type(XmlText);
 mode SCRIPT;
 
 ScriptText:               ~[<]+;
-ScriptClose:              '<' '/' 'script'? '>' -> popMode;
+// TODO: handle JS strings, but handle <?php tags inside them
+//ScriptString:             '"' (~'"' | '\\' ('\r'? '\n' | .))* '"' -> type(ScriptText);
+//ScriptString2:            '\'' (~'\'' | '\\' ('\r'? '\n' | .))* '\'' -> type(ScriptText);
+HtmlScriptClose:          '</' 'script'? '>' -> popMode;
 PHPStartInsideScriptEcho: PhpStartEchoFragment -> type(Echo), pushMode(PHP);
 PHPStartInsideScript:     PhpStartFragment -> channel(SkipChannel), pushMode(PHP);
 ScriptText2:              '<' -> type(ScriptText);

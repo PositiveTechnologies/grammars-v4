@@ -237,7 +237,7 @@ variableInitializer
     ;
 
 arrayInitializer
-    : '{' (variableInitializer (',' variableInitializer)* (',')? )? '}'
+    : '{' (variableInitializer (',' variableInitializer)* ','? )? '}'
     ;
 
 classOrInterfaceType
