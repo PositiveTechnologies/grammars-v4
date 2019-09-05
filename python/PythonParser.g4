@@ -20,7 +20,7 @@
  */
 parser grammar PythonParser;
 
-options { tokenVocab=PythonLexer; }
+options { tokenVocab=PythonLexer; superClass=PythonBaseParser; }
 
 root
     : (single_input
@@ -85,7 +85,7 @@ with_item
 // Python 2 : EXCEPT test COMMA name
 // Python 3 : EXCEPT test AS name
 except_clause
-    : EXCEPT (test (COMMA name | AS name)?)? COLON suite
+    : EXCEPT (test ({CheckVersion(2)}? COMMA name {SetVersion(2);} | {CheckVersion(3)}? AS name {SetVersion(3);})?)? COLON suite
     ;
 
 classdef
@@ -133,7 +133,8 @@ simple_stmt
 // TODO 2: semantically annotated declaration is not an assignment
 small_stmt
     : testlist_star_expr assign_part?                                                 #expr_stmt
-    | PRINT ((test (COMMA test)* COMMA?) | RIGHT_SHIFT test ((COMMA test)+ COMMA?))   #print_stmt   // Python 2
+    | {CheckVersion(2)}? PRINT ((test (COMMA test)* COMMA?)
+                       | RIGHT_SHIFT test ((COMMA test)+ COMMA?)) {SetVersion(2);}    #print_stmt   // Python 2
     | DEL exprlist                                                                    #del_stmt
     | PASS                                                                            #pass_stmt
     | BREAK                                                                           #break_stmt
@@ -145,9 +146,9 @@ small_stmt
     | FROM ((DOT | ELLIPSIS)* dotted_name | (DOT | ELLIPSIS)+)
       IMPORT (STAR | OPEN_PAREN import_as_names CLOSE_PAREN | import_as_names)        #from_stmt
     | GLOBAL name (COMMA name)*                                                       #global_stmt
-    | EXEC expr (IN test (COMMA test)?)?                                              #exec_stmt     // Python 2
+    | {CheckVersion(2)}? EXEC expr (IN test (COMMA test)?)? {SetVersion(2);}          #exec_stmt     // Python 2
     | ASSERT test (COMMA test)?                                                       #assert_stmt
-    | NONLOCAL name (COMMA name)*                                                     #nonlocal_stmt // Python 3
+    | {CheckVersion(3)}? NONLOCAL name (COMMA name)* {SetVersion(3);}                 #nonlocal_stmt // Python 3
     ;
 
 testlist_star_expr
@@ -160,8 +161,10 @@ star_expr
     ;
 
 assign_part
-    : (ASSIGN testlist_star_expr)+ | (ASSIGN testlist_star_expr)* ASSIGN yield_expr // if left expression in assign is bool literal, it's mean that is Python 2 here
-    | COLON test (ASSIGN testlist)? // annassign Python3 rule
+    // if left expression in assign is bool literal, it's mean that is Python 2 here
+    : ASSIGN ( testlist_star_expr ((ASSIGN testlist_star_expr)* (ASSIGN yield_expr)?)?
+             | yield_expr)
+    | {CheckVersion(3)}? COLON test (ASSIGN testlist)? {SetVersion(3);} // annassign Python3 rule
     | op=( ADD_ASSIGN
          | SUB_ASSIGN
          | MULT_ASSIGN
@@ -352,8 +355,8 @@ subscriptlist
 
 subscript
     : ELLIPSIS
-    | test
-    | test? COLON test? sliceop?
+    | test (COLON test? sliceop?)?
+    | COLON test? sliceop?
     ;
 
 // TODO: maybe inline?
