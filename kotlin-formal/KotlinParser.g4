@@ -53,6 +53,7 @@ declaration
     : classDeclaration
     | objectDeclaration
     | functionDeclaration
+    | localVariableDeclaration
     | propertyDeclaration
     | typeAlias
     ;
@@ -80,7 +81,7 @@ classParameters
     ;
 
 classParameter
-    : modifiers? (VAL | VAR)? NL* simpleIdentifier COLON NL* type (NL* ASSIGNMENT NL* expression)?
+    : modifiers? (VAL | VAR)? NL* parameter (NL* ASSIGNMENT NL* expression)?
     ;
 
 delegationSpecifiers
@@ -170,6 +171,10 @@ functionBody
 
 variableDeclaration
     : annotation* NL* simpleIdentifier (NL* COLON NL* type)?
+    ;
+
+localVariableDeclaration
+    : (VAL | VAR) (multiVariableDeclaration | variableDeclaration) (NL* ASSIGNMENT NL* expression)?
     ;
 
 multiVariableDeclaration
@@ -349,8 +354,8 @@ forStatement
     ;
 
 whileStatement
-    : WHILE NL* LPAREN expression RPAREN NL* controlStructureBody
-    | WHILE NL* LPAREN expression RPAREN NL* SEMICOLON
+    : WHILE NL* parenthesizedExpression NL* controlStructureBody
+    | WHILE NL* parenthesizedExpression NL* SEMICOLON
     ;
 
 doWhileStatement
@@ -436,8 +441,7 @@ unaryPrefix
     ;
 
 postfixUnaryExpression
-    : primaryExpression
-    | primaryExpression postfixUnarySuffix+
+    : primaryExpression postfixUnarySuffix*
     ;
 
 postfixUnarySuffix
@@ -499,7 +503,7 @@ valueArguments
     ;
 
 valueArgument
-    : annotation? NL* (simpleIdentifier NL* ASSIGNMENT NL*)? MULT? NL* expression
+    : annotation? NL* (simpleIdentifier NL* ASSIGNMENT NL*)? (MULT NL*)? expression
     ;
 
 primaryExpression
@@ -617,8 +621,20 @@ superExpression
     ;
 
 ifExpression
-    : IF NL* LPAREN NL* expression NL* RPAREN NL* (controlStructureBody | SEMICOLON)
-    | IF NL* LPAREN NL* expression NL* RPAREN NL* controlStructureBody? NL* SEMICOLON? NL* ELSE NL* (controlStructureBody | SEMICOLON)
+    :ifStatement 
+     elseIfStatement*
+     elseStatement?
+    ;
+
+ifStatement
+    : IF NL* parenthesizedExpression NL* controlStructureBody? NL* SEMICOLON? NL*
+    ;
+
+elseIfStatement
+    : ELSE IF NL* parenthesizedExpression NL* (controlStructureBody | SEMICOLON);
+
+elseStatement
+    : ELSE NL* (controlStructureBody | SEMICOLON)
     ;
 
 whenSubject
@@ -915,6 +931,8 @@ simpleIdentifier: Identifier
     | ACTUAL
     | CONST
     | SUSPEND
+    | STEP
+    | DOWN_TO
     ;
 
 identifier
