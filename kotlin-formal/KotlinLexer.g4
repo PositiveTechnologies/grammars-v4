@@ -140,6 +140,8 @@ THROW: 'throw';
 RETURN: 'return';
 CONTINUE: 'continue';
 BREAK: 'break';
+STEP: 'step';
+DOWN_TO: 'downTo';
 AS: 'as';
 IS: 'is';
 IN: 'in';
@@ -295,6 +297,8 @@ IdentifierOrSoftKey
     | RECEIVER
     | PARAM
     | SETPARAM
+    | STEP
+    | DOWN_TO
     | DELEGATE
     | FILE
     | EXPECT
