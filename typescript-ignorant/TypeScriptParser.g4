@@ -249,7 +249,7 @@ methodSignature
     ;
 
 typeAliasDeclaration
-    : 'type' Identifier typeParameters? '=' type_ SemiColon
+    : Declare? 'type' Identifier typeParameters? '=' type_ SemiColon
     ;
 
 constructorDeclaration
@@ -259,7 +259,7 @@ constructorDeclaration
 // A.5 Interface
 
 interfaceDeclaration
-    : Export? Interface Identifier typeParameters? interfaceExtendsClause? objectType SemiColon?
+    : Declare? Interface Identifier typeParameters? interfaceExtendsClause? objectType SemiColon?
     ;
 
 interfaceExtendsClause
@@ -273,7 +273,7 @@ classOrInterfaceTypeList
 // A.7 Interface
 
 enumDeclaration
-    : Const? Enum Identifier '{' enumBody? '}'
+    : Declare? Const? Enum Identifier '{' enumBody? '}'
     ;
 
 enumBody
@@ -291,7 +291,7 @@ enumMember
 // A.8 Namespaces
 
 namespaceDeclaration
-    : Namespace namespaceName '{' statementList? '}'
+    : Declare? Namespace namespaceName '{' statementList? '}'
     ;
 
 namespaceName
@@ -301,7 +301,7 @@ namespaceName
 // Modules look just like namespaces to me
 
 moduleDeclaration
-    : Module moduleName '{' statementList? '}'
+    : Declare? Module moduleName '{' statementList? '}'
     ;
 
 moduleName
@@ -506,12 +506,12 @@ debuggerStatement
     ;
 
 functionDeclaration
-    : Function Identifier callSignature ( ('{' functionBody '}') | SemiColon)
+    : Declare? Function Identifier callSignature ( ('{' functionBody '}') | SemiColon)
     ;
 
 //Ovveride ECMA
 classDeclaration
-    : Abstract? Class Identifier typeParameters? classHeritage classTail
+    : (Abstract | Declare)? Class Identifier typeParameters? classHeritage classTail
     ;
 
 classHeritage
