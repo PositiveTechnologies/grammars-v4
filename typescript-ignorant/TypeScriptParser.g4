@@ -291,21 +291,21 @@ enumMember
 // A.8 Namespaces
 
 namespaceDeclaration
-    : Declare? Namespace namespaceName '{' statementList? '}'
+    : Declare? Namespace namespaceName '{' statementList '}'
     ;
 
 namespaceName
-    : Identifier ('.'+ Identifier)*
+    : Identifier ('.' Identifier)*?
     ;
 
 // Modules look just like namespaces to me
 
 moduleDeclaration
-    : Declare? Module moduleName '{' statementList? '}'
+    : Declare? Module moduleName '{' statementList '}'
     ;
 
 moduleName
-    : Identifier ('.'+ Identifier)*
+    : Identifier ('.' Identifier)*?
     ;
 
 importAliasDeclaration
@@ -332,51 +332,47 @@ decoratorCallExpression
 
 // ECMAPart
 program
-    : sourceElements? EOF
-    ;
-
-sourceElement
-    : Export? statement
+    : statementList EOF
     ;
 
 statement
-    : block
-    | variableStatement
-    | importStatement
-    | exportStatement
-    | emptyStatement
-    | abstractDeclaration //ADDED
-    | classDeclaration
-    | interfaceDeclaration //ADDED
-    | namespaceDeclaration //ADDED
-    | moduleDeclaration //ADDED
-    | ifStatement
-    | iterationStatement
-    | continueStatement
-    | breakStatement
-    | returnStatement
-    | yieldStatement
-    | withStatement
-    | labelledStatement
-    | switchStatement
-    | throwStatement
-    | tryStatement
-    | debuggerStatement
-    | functionDeclaration
-    | arrowFunctionDeclaration
-    | generatorFunctionDeclaration
-    | typeAliasDeclaration //ADDED
-    | enumDeclaration      //ADDED
-    | expressionStatement
-    | Export statement
+    : block                        # StatementBlock
+    | variableStatement            # StatementVariable
+    | emptyStatement               # StatementEmpty
+    | abstractDeclaration          # StatementAbstractDeclaration    //ADDED
+    | classDeclaration             # StatementClassDeclaration
+    | interfaceDeclaration         # StatementInterfaceDeclaration   //ADDED
+    | namespaceDeclaration         # StatementNamespaceDeclaration   //ADDED
+    | moduleDeclaration            # StatementModuleDeclaration      //ADDED
+    | typeAliasDeclaration         # StatementTypeAliasDeclaration   //ADDED
+    | enumDeclaration              # StatementEnumDeclaration        //ADDED
+    | ifStatement                  # StatementIf
+    | iterationStatement           # StatementIteration
+    | continueStatement            # StatementContinue
+    | breakStatement               # StatementBreak
+    | returnStatement              # StatementReturn
+    | yieldStatement               # StatementYield
+    | withStatement                # StatementWith
+    | labelledStatement            # StatementLabelled
+    | switchStatement              # StatementSwitch
+    | throwStatement               # StatementThrow
+    | tryStatement                 # StatementTry
+    | debuggerStatement            # StatementDebugger
+    | functionDeclaration          # StatementFunctionDeclaration
+    | arrowFunctionDeclaration     # StatementArrowFunctionDeclaration
+    | generatorFunctionDeclaration # StatementGeneratorFunctionDeclaration
+    | expressionStatement          # StatementExpression
+    | importStatement              # StatementImport
+    | exportStatement              # StatementExport
+//    | Export statement // exportStatement should cover this
     ;
 
 block
-    : '{' statementList? '}'
+    : '{' statementList '}'
     ;
 
 statementList
-    : statement+
+    : statement*?
     ;
 
 abstractDeclaration
@@ -474,11 +470,11 @@ caseClauses
     ;
 
 caseClause
-    : Case expressionSequence ':' statementList?
+    : Case expressionSequence ':' statementList
     ;
 
 defaultClause
-    : Default ':' statementList?
+    : Default ':' statementList
     ;
 
 labelledStatement
@@ -519,7 +515,7 @@ classHeritage
     ;
 
 classTail
-    :  '{' classElement* '}'
+    :  '{' classElement*? '}'
     ;
 
 classExtendsClause
@@ -533,16 +529,17 @@ implementsClause
 // Classes modified
 classElement
     : constructorDeclaration
-    | propertyMemberDeclaration
+    | propertyMemberBase propertyMemberDeclaration
     | indexMemberDeclaration
     | statement
     ;
 
 propertyMemberDeclaration
-    : propertyMemberBase propertyName typeAnnotation? initializer? SemiColon
-    | propertyMemberBase propertyName callSignature ( ('{' functionBody '}') | SemiColon)
-    | propertyMemberBase (getAccessor | setAccessor)
-    | abstractDeclaration
+    : getAccessor
+    | setAccessor
+    | propertyName typeAnnotation? initializer? SemiColon
+    | propertyName callSignature ( ('{' functionBody '}') | SemiColon)
+    | /* FIXME propertyMemberBase wasn't here before. */ abstractDeclaration
     ;
 
 propertyMemberBase
@@ -593,11 +590,7 @@ lastFormalParameterArg                        // ECMAScript 6: Rest Parameter
     ;
 
 functionBody
-    : sourceElements?
-    ;
-
-sourceElements
-    : sourceElement+
+    : statementList
     ;
 
 arrayLiteral
@@ -816,11 +809,11 @@ keyword
     ;
 
 getter
-    : Identifier{this.p("get")}? propertyName
+    : Get propertyName
     ;
 
 setter
-    : Identifier{this.p("set")}? propertyName
+    : Set propertyName
     ;
 
 eos
