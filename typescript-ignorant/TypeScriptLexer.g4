@@ -91,6 +91,7 @@ Break:                          'break';
 Do:                             'do';
 Instanceof:                     'instanceof';
 Typeof:                         'typeof';
+Keyof:                          'keyof';
 Case:                           'case';
 Else:                           'else';
 New:                            'new';
@@ -143,11 +144,12 @@ Yield:                          'yield' ;
 
 //keywords:
 
-Any : 'any';
-Number: 'number';
+Any:     'any';
+Number:  'number';
 Boolean: 'boolean';
-String: 'string';
-Symbol: 'symbol';
+String:  'string';
+Symbol:  'symbol';
+Never:   'never';
 
 
 Type: 'type';

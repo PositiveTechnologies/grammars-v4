@@ -63,7 +63,7 @@ typeParameter
     ;
 
 constraint
-    : 'extends' type_
+    : Extends type_
     ;
 
 typeArguments
@@ -80,28 +80,34 @@ typeArgument
 
 type_
     : unionOrIntersectionOrPrimaryType
+    | conditionalType
     | functionType
     | constructorType
     | typeGeneric
     | StringLiteral
     ;
 
+conditionalType
+    : primaryType Extends primaryType '?' type_ ':' type_
+    ;
+
 unionOrIntersectionOrPrimaryType
-    : unionOrIntersectionOrPrimaryType '|' unionOrIntersectionOrPrimaryType #Union
-    | unionOrIntersectionOrPrimaryType '&' unionOrIntersectionOrPrimaryType #Intersection
-    | primaryType #Primary
+    : unionOrIntersectionOrPrimaryType '|' unionOrIntersectionOrPrimaryType # Union
+    | unionOrIntersectionOrPrimaryType '&' unionOrIntersectionOrPrimaryType # Intersection
+    | primaryType # Primary
     ;
 
 primaryType
-    : '(' type_ ')'                                 #ParenthesizedPrimType
-    | predefinedType                                #PredefinedPrimType
-    | typeReference                                 #ReferencePrimType
-    | objectType                                    #ObjectPrimType
-    | primaryType {notLineTerminator()}? '[' ']'    #ArrayPrimType
-    | '[' tupleElementTypes ']'                     #TuplePrimType
-    | typeQuery                                     #QueryPrimType
-    | This                                          #ThisPrimType
-    | typeReference Is primaryType                  #RedefinitionOfType
+    : '(' type_ ')'                                 # ParenthesizedPrimType
+    | predefinedType                                # PredefinedPrimType
+    | typeReference                                 # ReferencePrimType
+    | objectType                                    # ObjectPrimType
+    | primaryType {notLineTerminator()}? '[' ']'    # ArrayPrimType
+    | '[' tupleElementTypes ']'                     # TuplePrimType
+    | typeQuery                                     # QueryPrimType
+    | This                                          # ThisPrimType
+    | typeReference Is primaryType                  # RedefinitionOfType
+    | Keyof primaryType                             # KeyofType
     ;
 
 predefinedType
@@ -111,10 +117,11 @@ predefinedType
     | String
     | Symbol
     | Void
+    | Never
     ;
 
 typeReference
-    : typeName ( typeIncludeGeneric | typeGeneric)?
+    : typeName ( typeIncludeGeneric | typeGeneric | '[' Identifier ']')?
     ;
 
 // I tried recursive include, but it's not working.
@@ -142,7 +149,7 @@ objectType
     ;
 
 typeBody
-    : typeMemberList (SemiColon | ',')?
+    : (typeMemberList | mappedType) (SemiColon | ',')?
     ;
 
 typeMemberList
@@ -178,7 +185,7 @@ constructorType
     ;
 
 typeQuery
-    : 'typeof' typeQueryExpression
+    : Typeof typeQueryExpression
     ;
 
 typeQueryExpression
@@ -254,6 +261,10 @@ typeAliasDeclaration
 
 constructorDeclaration
     : accessibilityModifier? Constructor '(' formalParameterList? ')' ( ('{' functionBody '}') | SemiColon)?
+    ;
+
+mappedType
+    : ReadOnly? '[' Identifier In primaryType ']' '?'? typeAnnotation
     ;
 
 // A.5 Interface
@@ -764,6 +775,7 @@ keyword
     | Do
     | Instanceof
     | Typeof
+    | Keyof
     | Case
     | Else
     | New
@@ -772,6 +784,7 @@ keyword
     | Finally
     | Return
     | Void
+    | Never
     | Continue
     | For
     | Switch
