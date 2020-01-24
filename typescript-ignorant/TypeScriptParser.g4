@@ -592,9 +592,9 @@ formalParameterList
     | objectLiteral (':' formalParameterList)?  // ECMAScript 6: Parameter Context Matching
     ;
 
-// TODO: should it include bindingPattern? Unify with setters.
+// FIXME: is bindingPattern allowed here?
 formalParameterArg
-    : accessibilityModifier? Identifier typeAnnotation? ('=' singleExpression)?      // ECMAScript 6: Initialization
+    : accessibilityModifier? (Identifier | bindingPattern) typeAnnotation? ('=' singleExpression)?      // ECMAScript 6: Initialization
     ;
 
 lastFormalParameterArg                        // ECMAScript 6: Rest Parameter
@@ -634,11 +634,11 @@ propertyAssignment
     ;
 
 getAccessor
-    : getter '(' ')' typeAnnotation? '{' functionBody '}'
+    : getter '(' ')' typeAnnotation? ('{' functionBody '}')?
     ;
 
 setAccessor
-    : setter '(' accessibilityModifier? ( Identifier | bindingPattern) typeAnnotation? ')' '{' functionBody '}'
+    : setter '(' formalParameterArg ')' ('{' functionBody '}')?
     ;
 
 propertyName
