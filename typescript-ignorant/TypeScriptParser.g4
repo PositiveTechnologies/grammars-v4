@@ -138,7 +138,7 @@ typeIncludeGeneric
 
 typeName
     : Identifier
-    | namespaceName
+    | qualifiedName
     ;
 
 objectType
@@ -298,26 +298,22 @@ enumMember
 
 // A.8 Namespaces
 
-namespaceDeclaration
-    : Declare? Namespace namespaceName '{' statementList '}'
+qualifiedName
+    : Identifier ('.' Identifier)*
     ;
 
-namespaceName
-    : Identifier ('.' Identifier)*?
+namespaceDeclaration
+    : Declare? Namespace qualifiedName '{' statementList '}'
     ;
 
 // Modules look just like namespaces to me
 
 moduleDeclaration
-    : Declare? Module moduleName '{' statementList '}'
-    ;
-
-moduleName
-    : Identifier ('.' Identifier)*?
+    : Declare? Module qualifiedName '{' statementList '}'
     ;
 
 importAliasDeclaration
-    : Identifier '=' (namespaceName | moduleName) SemiColon
+    : Identifier '=' qualifiedName SemiColon
     ;
 
 // Ext.2 Additions to 1.8: Decorators
@@ -343,6 +339,10 @@ decoratorCallExpression
 // ECMAPart
 program
     : statementList EOF
+    ;
+
+statementList
+    : statement*?
     ;
 
 statement
@@ -379,10 +379,6 @@ statement
 
 block
     : '{' statementList '}'
-    ;
-
-statementList
-    : statement*?
     ;
 
 abstractDeclaration
@@ -429,7 +425,6 @@ expressionStatement
 ifStatement
     : If '(' expressionSequence ')' statement (Else statement)?
     ;
-
 
 iterationStatement
     : Do statement While '(' expressionSequence ')' eos                                                         # DoStatement
@@ -623,7 +618,7 @@ objectLiteral
 
 // MODIFIED
 propertyAssignment
-    : propertyName (':' |'=') singleExpression                # PropertyExpressionAssignment
+    : propertyName (':' | '=') singleExpression               # PropertyExpressionAssignment
     | '[' singleExpression ']' ':' singleExpression           # ComputedPropertyExpressionAssignment
     | getAccessor                                             # PropertyGetter
     | setAccessor                                             # PropertySetter
