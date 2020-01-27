@@ -261,7 +261,7 @@ constructorDeclaration
     ;
 
 mappedType
-    : ReadOnly? '[' Identifier In primaryType ']' '?'? typeAnnotation
+    : '-'? ReadOnly? '[' Identifier In primaryType ']' '?'? typeAnnotation
     ;
 
 // A.5 Interface
