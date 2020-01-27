@@ -600,7 +600,7 @@ functionBody
     ;
 
 arrayLiteral
-    : ('[' elementList? ']')
+    : '[' elementList? ']' (As Const)?
     ;
 
 elementList
@@ -613,7 +613,7 @@ lastElement                      // ECMAScript 6: Spread Operator
     ;
 
 objectLiteral
-    : '{' (propertyAssignment (',' propertyAssignment)*)? ','? '}'
+    : '{' (propertyAssignment (',' propertyAssignment)*)? ','? '}' (As Const)?
     ;
 
 // MODIFIED
@@ -739,11 +739,11 @@ assignmentOperator
 
 literal
     : NullLiteral
-    | BooleanLiteral
-    | StringLiteral
+    | BooleanLiteral (As Const)?
+    | StringLiteral (As Const)?
     | TemplateStringLiteral
     | RegularExpressionLiteral
-    | numericLiteral
+    | numericLiteral (As Const)?
     ;
 
 numericLiteral
