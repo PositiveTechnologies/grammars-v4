@@ -43,7 +43,8 @@ initializer
     ;
 
 bindingPattern
-    : (arrayLiteral | objectLiteral)
+    : arrayLiteral
+    | objectLiteral
     ;
 
 // TypeScript SPart
@@ -71,11 +72,7 @@ typeArguments
     ;
 
 typeArgumentList
-    : typeArgument (',' typeArgument)*
-    ;
-
-typeArgument
-    : type_
+    : type_ (',' type_)*
     ;
 
 type_
@@ -94,7 +91,7 @@ conditionalType
 unionOrIntersectionOrPrimaryType
     : unionOrIntersectionOrPrimaryType '|' unionOrIntersectionOrPrimaryType # Union
     | unionOrIntersectionOrPrimaryType '&' unionOrIntersectionOrPrimaryType # Intersection
-    | primaryType # Primary
+    | primaryType                                                           # Primary
     ;
 
 primaryType
@@ -121,7 +118,7 @@ predefinedType
     ;
 
 typeReference
-    : typeName ( typeIncludeGeneric | typeGeneric | '[' Identifier ']')?
+    : typeName (typeIncludeGeneric | typeGeneric | '[' Identifier ']')?
     ;
 
 // I tried recursive include, but it's not working.
@@ -236,7 +233,7 @@ optionalParameterList
     ;
 
 optionalParameter
-    : decoratorList? ( accessibilityModifier? identifierOrPattern ('?' typeAnnotation? | typeAnnotation? initializer))
+    : decoratorList? (accessibilityModifier? identifierOrPattern ('?' typeAnnotation? | typeAnnotation? initializer))
     ;
 
 restParameter
@@ -248,7 +245,7 @@ constructSignature
     ;
 
 indexSignature
-    : '[' Identifier ':' (Number|String) ']' typeAnnotation
+    : '[' Identifier ':' (Number | String) ']' typeAnnotation
     ;
 
 methodSignature
@@ -260,7 +257,7 @@ typeAliasDeclaration
     ;
 
 constructorDeclaration
-    : accessibilityModifier? Constructor '(' formalParameterList? ')' ( ('{' functionBody '}') | SemiColon)?
+    : accessibilityModifier? Constructor '(' formalParameterList? ')' (('{' functionBody '}') | SemiColon)?
     ;
 
 mappedType
@@ -326,7 +323,8 @@ importAliasDeclaration
 // Ext.2 Additions to 1.8: Decorators
 
 decoratorList
-    : decorator+ ;
+    : decorator+
+    ;
 
 decorator
     : '@' (decoratorMemberExpression | decoratorCallExpression)
@@ -339,7 +337,8 @@ decoratorMemberExpression
     ;
 
 decoratorCallExpression
-    : decoratorMemberExpression arguments;
+    : decoratorMemberExpression arguments
+    ;
 
 // ECMAPart
 program
@@ -416,7 +415,7 @@ variableDeclarationList
     ;
 
 variableDeclaration
-    : ( Identifier | arrayLiteral | objectLiteral) typeAnnotation? singleExpression? ('=' typeParameters? singleExpression)? // ECMAScript 6: Array & Object Matching
+    : (Identifier | arrayLiteral | objectLiteral) typeAnnotation? singleExpression? ('=' typeParameters? singleExpression)? // ECMAScript 6: Array & Object Matching
     ;
 
 emptyStatement
@@ -513,7 +512,7 @@ debuggerStatement
     ;
 
 functionDeclaration
-    : Declare? Function Identifier callSignature ( ('{' functionBody '}') | SemiColon)
+    : Declare? Function Identifier callSignature (('{' functionBody '}') | SemiColon)
     ;
 
 //Ovveride ECMA
@@ -549,7 +548,7 @@ propertyMemberDeclaration
     : getAccessor
     | setAccessor
     | propertyName typeAnnotation? initializer? SemiColon
-    | propertyName callSignature ( ('{' functionBody '}') | SemiColon)
+    | propertyName callSignature (('{' functionBody '}') | SemiColon)
     | /* FIXME propertyMemberBase wasn't here before. */ abstractDeclaration
     ;
 

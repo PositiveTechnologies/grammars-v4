@@ -38,6 +38,3 @@ var str: string = sum(10,20); // Compiler Error
 let code: any = 123;
 let employeeCode = <number> code;
 console.log(typeof(employeeCode)); //Output: number
-
-
-
