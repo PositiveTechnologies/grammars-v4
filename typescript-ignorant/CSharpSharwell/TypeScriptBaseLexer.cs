@@ -1,6 +1,6 @@
 using Antlr4.Runtime;
 using System.Collections.Generic;
-// using static PT.PM.JavaScriptParseTreeUst.JavaScriptParser;
+using static TypeScriptParseTree.TypeScriptLexer;
 
 /// <summary>
 /// All lexer methods that used in grammar (IsStrictMode)
