@@ -660,16 +660,8 @@ functionExpressionDeclaration
     : Function Identifier? '(' formalParameterList? ')' typeAnnotation? '{' functionBody '}'
     ;
 
-singleExpression
-    : functionExpressionDeclaration                                          # FunctionExpression
-    | arrowFunctionDeclaration                                               # ArrowFunctionExpression   // ECMAScript 6
-    | Class Identifier? classTail                                            # ClassExpression
-    | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
-    | singleExpression '.' identifierName                                    # MemberDotExpression
-    | singleExpression arguments                                             # ArgumentsExpression
-    | New singleExpression typeArguments? arguments?                         # NewExpression
-    | singleExpression {this.notLineTerminator()}? '++'                      # PostIncrementExpression
-    | singleExpression {this.notLineTerminator()}? '--'                      # PostDecreaseExpression
+prefixOperatorExpression
+    : New singleExpression typeArguments? arguments?                         # NewExpression
     | Delete singleExpression                                                # DeleteExpression
     | Void singleExpression                                                  # VoidExpression
     | Typeof singleExpression                                                # TypeofExpression
@@ -679,6 +671,18 @@ singleExpression
     | '-' singleExpression                                                   # UnaryMinusExpression
     | '~' singleExpression                                                   # BitNotExpression
     | '!' singleExpression                                                   # NotExpression
+    ;
+
+singleExpression
+    : functionExpressionDeclaration                                          # FunctionExpression
+    | arrowFunctionDeclaration                                               # ArrowFunctionExpression   // ECMAScript 6
+    | Class Identifier? classTail                                            # ClassExpression
+    | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
+    | singleExpression '.' identifierName                                    # MemberDotExpression
+    | singleExpression arguments                                             # ArgumentsExpression
+    | prefixOperatorExpression                                               # PrefixExpression
+    | singleExpression {this.notLineTerminator()}? '++'                      # PostIncrementExpression
+    | singleExpression {this.notLineTerminator()}? '--'                      # PostDecreaseExpression
     | singleExpression ('*' | '/' | '%') singleExpression                    # MultiplicativeExpression
     | singleExpression ('+' | '-') singleExpression                          # AdditiveExpression
     | singleExpression ('<<' | '>>' | '>>>') singleExpression                # BitShiftExpression
