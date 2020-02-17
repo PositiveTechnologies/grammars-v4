@@ -403,7 +403,7 @@ exportStatement
 
 variableStatement
     : bindingPattern typeAnnotation? initializer SemiColon?
-    | Declare? accessibilityModifier? varModifier? ReadOnly? variableDeclarationList SemiColon?
+    | Declare? accessibilityModifier? varModifier ReadOnly? variableDeclarationList SemiColon?
     ;
 
 variableDeclarationList
