@@ -704,7 +704,8 @@ singleExpression
     | generatorFunctionDeclaration                                           # GeneratorsFunctionExpression // ECMAScript 6
     | yieldStatement                                                         # YieldExpression // ECMAScript 6
     | This                                                                   # ThisExpression
-    | identifierName singleExpression?                                       # IdentifierExpression
+//    | identifierName singleExpression?                                       # IdentifierExpression // What this describes?
+    | identifierName                                                         # IdentifierExpression
     | Super                                                                  # SuperExpression
     | literal                                                                # LiteralExpression
     | arrayLiteral                                                           # ArrayLiteralExpression
