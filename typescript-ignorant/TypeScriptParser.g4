@@ -237,7 +237,7 @@ optionalParameter
     ;
 
 restParameter
-    : '...' singleExpression
+    : Ellipsis Identifier
     ;
 
 constructSignature
@@ -556,11 +556,11 @@ indexMemberDeclaration
     ;
 
 generatorMethod
-    : '*'?  Identifier '(' formalParameterList? ')' '{' functionBody '}'
+    : '*'?  Identifier callSignature '{' functionBody '}'
     ;
 
 generatorFunctionDeclaration
-    : Function '*' Identifier? '(' formalParameterList? ')' '{' functionBody '}'
+    : Function '*' Identifier? callSignature '{' functionBody '}'
     ;
 
 generatorBlock
@@ -657,7 +657,7 @@ expressionSequence
     ;
 
 functionExpressionDeclaration
-    : Function Identifier? '(' formalParameterList? ')' typeAnnotation? '{' functionBody '}'
+    : Function Identifier? callSignature typeAnnotation? '{' functionBody '}'
     ;
 
 prefixOperatorExpression
@@ -720,7 +720,7 @@ arrowFunctionDeclaration
 
 arrowFunctionParameters
     : Identifier
-    | '(' formalParameterList? ')'
+    | callSignature
     ;
 
 arrowFunctionBody
