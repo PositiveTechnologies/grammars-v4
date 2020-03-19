@@ -819,6 +819,8 @@ keyword
     | Protected
     | Static
     | Yield
+    | Module
+    | Namespace
     ;
 
 getter
