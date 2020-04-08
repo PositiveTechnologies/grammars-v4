@@ -118,7 +118,13 @@ predefinedType
     ;
 
 typeReference
-    : typeName (typeIncludeGeneric | typeGeneric | '[' Identifier ']')?
+    : typeName nestedTypeGeneric?
+    ;
+
+nestedTypeGeneric
+    : typeIncludeGeneric
+    | typeGeneric
+    | '[' Identifier ']'
     ;
 
 // I tried recursive include, but it's not working.
@@ -204,13 +210,24 @@ callSignature
 
 parameterList
     : restParameter
-    | predefinedType (',' predefinedType)*
-    | optionalParameterList (',' restParameter)?
-    | requiredParameterList (',' (optionalParameterList (',' restParameter)? | restParameter))?
+    | parameter (',' parameter)* (',' restParameter)?
     ;
 
 requiredParameterList
     : requiredParameter (',' requiredParameter)*
+    ;
+
+parameter
+    : requiredParameter
+    | optionalParameter
+    ;
+
+optionalParameter
+    : decoratorList? ( accessibilityModifier? identifierOrPattern ('?' typeAnnotation? | typeAnnotation? initializer))
+    ;
+
+restParameter
+    : Ellipsis Identifier typeAnnotation?
     ;
 
 requiredParameter
@@ -226,18 +243,6 @@ accessibilityModifier
 identifierOrPattern
     : identifierName
     | bindingPattern
-    ;
-
-optionalParameterList
-    : optionalParameter (',' optionalParameter)*
-    ;
-
-optionalParameter
-    : decoratorList? (accessibilityModifier? identifierOrPattern ('?' typeAnnotation? | typeAnnotation? initializer))
-    ;
-
-restParameter
-    : Ellipsis Identifier
     ;
 
 constructSignature
@@ -411,7 +416,7 @@ variableDeclarationList
     ;
 
 variableDeclaration
-    : (Identifier | arrayLiteral | objectLiteral) typeAnnotation? singleExpression? ('=' typeParameters? singleExpression)? // ECMAScript 6: Array & Object Matching
+    : (identifierName | arrayLiteral | objectLiteral) typeAnnotation? singleExpression? ('=' typeParameters? singleExpression)? // ECMAScript 6: Array & Object Matching
     ;
 
 emptyStatement
@@ -534,7 +539,7 @@ implementsClause
 // Classes modified
 classElement
     : constructorDeclaration
-    | propertyMemberBase propertyMemberDeclaration
+    | decoratorList? propertyMemberBase propertyMemberDeclaration
     | indexMemberDeclaration
     | statement
     ;
@@ -542,7 +547,7 @@ classElement
 propertyMemberDeclaration
     : getAccessor
     | setAccessor
-    | propertyName typeAnnotation? initializer? SemiColon
+    | propertyName '?'? typeAnnotation? initializer? SemiColon
     | propertyName callSignature (('{' functionBody '}') | SemiColon)
     | /* FIXME propertyMemberBase wasn't here before. */ abstractDeclaration
     ;
@@ -588,7 +593,7 @@ formalParameterList
 
 // FIXME: is bindingPattern allowed here?
 formalParameterArg
-    : accessibilityModifier? (Identifier | bindingPattern) typeAnnotation? ('=' singleExpression)?      // ECMAScript 6: Initialization
+    : decorator? accessibilityModifier? (identifierName | bindingPattern) typeAnnotation? ('=' singleExpression)?      // ECMAScript 6: Initialization
     ;
 
 lastFormalParameterArg                        // ECMAScript 6: Rest Parameter
@@ -604,12 +609,11 @@ arrayLiteral
     ;
 
 elementList
-    : singleExpression (','+ singleExpression)* (','+ lastElement)?
-    | lastElement
+    : arrayElement (',' + arrayElement)*
     ;
 
-lastElement                      // ECMAScript 6: Spread Operator
-    : Ellipsis (Identifier | singleExpression)
+arrayElement
+    : Ellipsis? (identifierName | singleExpression) ','?
     ;
 
 objectLiteral
@@ -623,7 +627,7 @@ propertyAssignment
     | getAccessor                                             # PropertyGetter
     | setAccessor                                             # PropertySetter
     | generatorMethod                                         # MethodProperty
-    | Identifier                                              # PropertyShorthand
+    | identifierName                                          # PropertyShorthand
     | restParameter                                           # RestParameterInObject
     ;
 
@@ -642,14 +646,15 @@ propertyName
     ;
 
 arguments
-    : '('(
-          singleExpression (',' singleExpression)* (',' lastArgument)? |
-          lastArgument
-       )?')'
+    : '(' (argumentList ','?)? ')'
     ;
 
-lastArgument                                  // ECMAScript 6: Spread Operator
-    : Ellipsis Identifier
+argumentList
+    : argument (',' argument)*
+    ;
+
+argument                      // ECMAScript 6: Spread Operator
+    : Ellipsis? (singleExpression | Identifier)
     ;
 
 expressionSequence
@@ -678,7 +683,7 @@ singleExpression
     | arrowFunctionDeclaration                                               # ArrowFunctionExpression   // ECMAScript 6
     | Class Identifier? classTail                                            # ClassExpression
     | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
-    | singleExpression '.' identifierName                                    # MemberDotExpression
+    | singleExpression '.' identifierName nestedTypeGeneric?                 # MemberDotExpression
     | singleExpression arguments                                             # ArgumentsExpression
     | prefixOperatorExpression                                               # PrefixExpression
     | singleExpression {this.notLineTerminator()}? '++'                      # PostIncrementExpression
