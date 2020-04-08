@@ -253,7 +253,7 @@ methodSignature
     ;
 
 typeAliasDeclaration
-    : Declare? 'type' Identifier typeParameters? '=' type_ SemiColon
+    : Declare? TypeAlias Identifier typeParameters? '=' type_ SemiColon
     ;
 
 constructorDeclaration
@@ -761,13 +761,7 @@ numericLiteral
 
 identifierName
     : Identifier
-    | reservedWord
-    ;
-
-reservedWord
-    : keyword
-    | NullLiteral
-    | BooleanLiteral
+    | keyword
     ;
 
 keyword
@@ -821,6 +815,11 @@ keyword
     | Yield
     | Module
     | Namespace
+    | Get
+    | Set
+    | Require
+    | TypeAlias
+    | String
     ;
 
 getter
