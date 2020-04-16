@@ -683,7 +683,7 @@ singleExpression
     | arrowFunctionDeclaration                                               # ArrowFunctionExpression   // ECMAScript 6
     | Class Identifier? classTail                                            # ClassExpression
     | singleExpression '[' expressionSequence ']'                            # MemberIndexExpression
-    | singleExpression '.' identifierName nestedTypeGeneric?                 # MemberDotExpression
+    | singleExpression '.' identifierName                                    # MemberDotExpression
     | singleExpression arguments                                             # ArgumentsExpression
     | prefixOperatorExpression                                               # PrefixExpression
     | singleExpression {this.notLineTerminator()}? '++'                      # PostIncrementExpression
