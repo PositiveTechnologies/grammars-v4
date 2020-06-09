@@ -129,6 +129,7 @@ def_parameters
 def_parameter
     : named_parameter (ASSIGN test)?
     | STAR
+    | DIV
     ;
 
 named_parameter
@@ -240,6 +241,7 @@ vardef_parameters
 vardef_parameter
     : name (ASSIGN test)?
     | STAR
+    | DIV
     ;
 
 varargs
@@ -283,7 +285,7 @@ atom
     | name
     | PRINT
     | EXEC
-    | MINUS? number
+    | number
     | NONE
     | STRING+
     ;
