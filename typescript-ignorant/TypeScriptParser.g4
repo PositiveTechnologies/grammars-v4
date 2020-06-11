@@ -399,7 +399,7 @@ fromBlock
     ;
 
 multipleImportStatement
-    : (identifierName ',')? '{' identifierName (',' identifierName)* '}'
+    : (identifierName ',')? '{' identifierName (As identifierName)? (',' identifierName (As identifierName)?)* '}'
     ;
 
 exportStatement
@@ -808,7 +808,6 @@ keyword
     | Super
     | Const
     | Export
-    | Import
     | Implements
     | Let
     | Private
