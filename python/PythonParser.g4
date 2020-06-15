@@ -376,11 +376,11 @@ sliceop
     : COLON test?
     ;
 
-comp_for
-    : FOR exprlist IN logical_test comp_iter?
-    ;
-
 comp_iter
     : comp_for
     | IF test comp_iter?
+    ;
+
+comp_for
+    : ASYNC? FOR exprlist IN logical_test comp_iter?
     ;

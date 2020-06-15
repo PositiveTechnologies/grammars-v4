@@ -15,3 +15,8 @@ async def f():
     # ASYNC for_stmt
     async for _ in range(5):
         pass
+
+# async comp_for
+async def f2():
+    list = []
+    iterable = [x async for x in list]
