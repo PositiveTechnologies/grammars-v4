@@ -122,14 +122,14 @@ STRING             : ([uU] | [fF] [rR]? | [rR] [fF]?)? (SHORT_STRING | LONG_STRI
                    | ([bB] [rR]? | [rR] [bB]) (SHORT_BYTES | LONG_BYTES)
                    ;
 
-DECIMAL_INTEGER    : [1-9] [0-9]*
-                   | '0'+
+DECIMAL_INTEGER    : [1-9] [0-9_]*
+                   | '0' [0_]*
                    ;
-OCT_INTEGER        : '0' [oO] [0-7]+;
-HEX_INTEGER        : '0' [xX] [0-9a-fA-F]+;
-BIN_INTEGER        : '0' [bB] [01]+;
+OCT_INTEGER        : '0' [oO] [0-7_]+;
+HEX_INTEGER        : '0' [xX] [0-9a-fA-F_]+;
+BIN_INTEGER        : '0' [bB] [01_]+;
 
-IMAG_NUMBER        : (EXPONENT_OR_POINT_FLOAT | [0-9]+) [jJ];
+IMAG_NUMBER        : (EXPONENT_OR_POINT_FLOAT | DIGIT_PART) [jJ];
 FLOAT_NUMBER       : EXPONENT_OR_POINT_FLOAT;
 
 OPEN_PAREN         : '(' {IncIndentLevel();};
@@ -168,13 +168,17 @@ fragment RN
     ;
 
 fragment EXPONENT_OR_POINT_FLOAT
-    : ([0-9]+ | POINT_FLOAT) [eE] [+-]? [0-9]+
+    : (DIGIT_PART | POINT_FLOAT) [eE] [+-]? DIGIT_PART
     | POINT_FLOAT
     ;
 
 fragment POINT_FLOAT
-    : [0-9]* '.' [0-9]+
-    | [0-9]+ '.'
+    : DIGIT_PART? '.' DIGIT_PART
+    | DIGIT_PART '.'
+    ;
+
+fragment DIGIT_PART
+    : [0-9][0-9_]*
     ;
 
 fragment SHORT_BYTES
