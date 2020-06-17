@@ -284,7 +284,6 @@ atom
     | ELLIPSIS
     | name
     | PRINT
-    | EXEC
     | number
     | NONE
     | STRING+
@@ -311,6 +310,7 @@ dotted_name
 
 name
     : NAME
+    | {CheckVersion(3)}? EXEC {SetVersion(3);}
     | TRUE
     | FALSE
     ;

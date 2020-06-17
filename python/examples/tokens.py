@@ -32,3 +32,5 @@ hex_with_underscore     = 0xffff_ffff
 oct_with_underscore     = 0o_0
 bin_with_underscore     = 0b_0011_1111_0100_1110
 float_with_underscore   = 10_000_000.0
+
+exec = 12345
