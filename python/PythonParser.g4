@@ -283,7 +283,6 @@ atom
     | REVERSE_QUOTE testlist COMMA? REVERSE_QUOTE
     | ELLIPSIS
     | name
-    | PRINT
     | number
     | NONE
     | STRING+
@@ -310,7 +309,7 @@ dotted_name
 
 name
     : NAME
-    | {CheckVersion(3)}? EXEC {SetVersion(3);}
+    | ({CheckVersion(3)}? EXEC | PRINT {SetVersion(3);})
     | TRUE
     | FALSE
     ;

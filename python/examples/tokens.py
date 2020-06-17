@@ -34,3 +34,6 @@ bin_with_underscore     = 0b_0011_1111_0100_1110
 float_with_underscore   = 10_000_000.0
 
 exec = 12345
+
+def print():
+    pass
