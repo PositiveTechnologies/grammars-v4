@@ -143,23 +143,23 @@ simple_stmt
 // TODO 1: left part augmented assignment should be `test` only, no stars or lists
 // TODO 2: semantically annotated declaration is not an assignment
 small_stmt
-    : testlist_star_expr assign_part?                                                 #expr_stmt
-    | {CheckVersion(2)}? PRINT ((test (COMMA test)* COMMA?)
-                       | RIGHT_SHIFT test ((COMMA test)+ COMMA?)) {SetVersion(2);}    #print_stmt   // Python 2
-    | DEL exprlist                                                                    #del_stmt
-    | PASS                                                                            #pass_stmt
-    | BREAK                                                                           #break_stmt
-    | CONTINUE                                                                        #continue_stmt
-    | RETURN testlist?                                                                #return_stmt
-    | RAISE (test (COMMA test (COMMA test)?)?)? (FROM test)?                          #raise_stmt
-    | yield_expr                                                                      #yield_stmt
-    | IMPORT dotted_as_names                                                          #import_stmt
+    : testlist_star_expr assign_part?                                                   #expr_stmt
+    | {CheckVersion(2)}? ( PRINT ((test (COMMA test)* COMMA?)
+                         | RIGHT_SHIFT test ((COMMA test)+ COMMA?)) ) {SetVersion(2);}  #print_stmt   // Python 2
+    | DEL exprlist                                                                      #del_stmt
+    | PASS                                                                              #pass_stmt
+    | BREAK                                                                             #break_stmt
+    | CONTINUE                                                                          #continue_stmt
+    | RETURN testlist?                                                                  #return_stmt
+    | RAISE (test (COMMA test (COMMA test)?)?)? (FROM test)?                            #raise_stmt
+    | yield_expr                                                                        #yield_stmt
+    | IMPORT dotted_as_names                                                            #import_stmt
     | FROM ((DOT | ELLIPSIS)* dotted_name | (DOT | ELLIPSIS)+)
-      IMPORT (STAR | OPEN_PAREN import_as_names CLOSE_PAREN | import_as_names)        #from_stmt
-    | GLOBAL name (COMMA name)*                                                       #global_stmt
-    | {CheckVersion(2)}? EXEC expr (IN test (COMMA test)?)? {SetVersion(2);}          #exec_stmt     // Python 2
-    | ASSERT test (COMMA test)?                                                       #assert_stmt
-    | {CheckVersion(3)}? NONLOCAL name (COMMA name)* {SetVersion(3);}                 #nonlocal_stmt // Python 3
+      IMPORT (STAR | OPEN_PAREN import_as_names CLOSE_PAREN | import_as_names)          #from_stmt
+    | GLOBAL name (COMMA name)*                                                         #global_stmt
+    | {CheckVersion(2)}? EXEC expr (IN test (COMMA test)?)? {SetVersion(2);}            #exec_stmt     // Python 2
+    | ASSERT test (COMMA test)?                                                         #assert_stmt
+    | {CheckVersion(3)}? NONLOCAL name (COMMA name)* {SetVersion(3);}                   #nonlocal_stmt // Python 3
     ;
 
 testlist_star_expr
@@ -309,7 +309,7 @@ dotted_name
 
 name
     : NAME
-    | ({CheckVersion(3)}? EXEC | PRINT {SetVersion(3);})
+    | {CheckVersion(3)}? (EXEC | PRINT) {SetVersion(3);}
     | TRUE
     | FALSE
     ;
