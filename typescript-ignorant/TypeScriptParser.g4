@@ -81,7 +81,6 @@ type_
     | functionType
     | constructorType
     | typeGeneric
-    | StringLiteral
     ;
 
 conditionalType
@@ -89,9 +88,9 @@ conditionalType
     ;
 
 unionOrIntersectionOrPrimaryType
-    : unionOrIntersectionOrPrimaryType '|' unionOrIntersectionOrPrimaryType # Union
-    | unionOrIntersectionOrPrimaryType '&' unionOrIntersectionOrPrimaryType # Intersection
-    | primaryType                                                           # Primary
+    : primaryType '|' unionOrIntersectionOrPrimaryType # Union
+    | primaryType '&' unionOrIntersectionOrPrimaryType # Intersection
+    | primaryType                                      # Primary
     ;
 
 primaryType
@@ -105,6 +104,7 @@ primaryType
     | This                                          # ThisPrimType
     | typeReference Is primaryType                  # RedefinitionOfType
     | Keyof primaryType                             # KeyofType
+    | StringLiteral                                 # StringLiteralType
     ;
 
 predefinedType
