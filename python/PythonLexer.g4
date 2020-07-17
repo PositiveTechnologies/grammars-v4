@@ -40,7 +40,6 @@ RETURN             : 'return';
 RAISE              : 'raise';
 FROM               : 'from';
 IMPORT             : 'import';
-NONLOCAL           : 'nonlocal';
 AS                 : 'as';
 GLOBAL             : 'global';
 ASSERT             : 'assert';
@@ -66,12 +65,15 @@ DEL                : 'del';
 PASS               : 'pass';
 CONTINUE           : 'continue';
 BREAK              : 'break';
-ASYNC              : 'async';
-AWAIT              : 'await';
-PRINT              : 'print';
-EXEC               : 'exec';
-TRUE               : 'True';
-FALSE              : 'False';
+
+EXEC               : 'exec' {CheckVersion(2)}?;
+PRINT              : 'print' {CheckVersion(2)}?;
+
+ASYNC              : 'async' {CheckVersion(3)}?;
+AWAIT              : 'await' {CheckVersion(3)}?;
+NONLOCAL           : 'nonlocal' {CheckVersion(3)}?;
+TRUE               : 'True' {CheckVersion(3)}?;
+FALSE              : 'False' {CheckVersion(3)}?;
 
 // Operators
 

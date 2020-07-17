@@ -8,6 +8,8 @@ namespace PythonParseTree
     {
         public static int TabSize { get; set; } = 8;
 
+        public PythonVersion Version { get; set; }
+
         // The amount of opened braces, brackets and parenthesis.
         private int _opened;
 
@@ -24,6 +26,10 @@ namespace PythonParseTree
             : base(charStream)
         {
         }
+
+        protected bool CheckVersion(int version) => Version == PythonVersion.Autodetect || version == (int) Version;
+
+        protected void SetVersion(int requiredVersion) => Version = (PythonVersion) requiredVersion;
 
         public override void Emit(IToken token)
         {
