@@ -75,20 +75,21 @@ L_CURLY                : '{';
 R_CURLY                : '}';
 L_BRACKET              : '[';
 R_BRACKET              : ']';
-ASSIGN                 : '=';
 COMMA                  : ',';
 SEMI                   : ';';
 COLON                  : ':';
 DOT                    : '.';
-PLUS_PLUS              : '++';
-MINUS_MINUS            : '--';
-DECLARE_ASSIGN         : ':=';
 ELLIPSIS               : '...';
 
 // Logical
 
 LOGICAL_OR             : '||';
 LOGICAL_AND            : '&&';
+
+// Assign
+
+ASSIGN                 : '=';
+DECLARE_ASSIGN         : ':=';
 
 // Relation operators
 
@@ -111,6 +112,8 @@ BIT_CLEAR              : '&^';
 // Unary operators
 
 EXCLAMATION            : '!';
+PLUS_PLUS              : '++';
+MINUS_MINUS            : '--';
 
 // Mixed operators
 

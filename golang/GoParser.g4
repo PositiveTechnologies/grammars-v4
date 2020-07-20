@@ -32,7 +32,7 @@
  * A Go grammar for ANTLR 4 derived from the Go Language Specification
  * https://golang.org/ref/spec
  */
- 
+
 parser grammar GoParser;
 
 options {
@@ -160,11 +160,7 @@ incDecStmt
     ;
 
 assignment
-    : expressionList assign_op expressionList
-    ;
-
-assign_op
-    : ('+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^')? '='
+    : expressionList ('+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^')? '=' expressionList
     ;
 
 shortVarDecl
