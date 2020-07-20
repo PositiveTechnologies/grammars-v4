@@ -55,10 +55,6 @@ FINALLY            : 'finally';
 WITH               : 'with';
 EXCEPT             : 'except';
 LAMBDA             : 'lambda';
-OR                 : 'or';
-AND                : 'and';
-NOT                : 'not';
-IS                 : 'is';
 CLASS              : 'class';
 YIELD              : 'yield';
 DEL                : 'del';
@@ -77,35 +73,19 @@ FALSE              : 'False' {CheckVersion(3)}?;
 
 // Operators
 
-DOT                : '.';
-ELLIPSIS           : '...';
-REVERSE_QUOTE      : '`';
+// Arithmetic
+
 STAR               : '*';
-COMMA              : ',';
-COLON              : ':';
-SEMI_COLON         : ';';
-POWER              : '**';
-ASSIGN             : '=';
-OR_OP              : '|';
-XOR                : '^';
-AND_OP             : '&';
-LEFT_SHIFT         : '<<';
-RIGHT_SHIFT        : '>>';
 ADD                : '+';
 MINUS              : '-';
 DIV                : '/';
 MOD                : '%';
+POWER              : '**';
 IDIV               : '//';
-NOT_OP             : '~';
-LESS_THAN          : '<';
-GREATER_THAN       : '>';
-EQUALS             : '==';
-GT_EQ              : '>=';
-LT_EQ              : '<=';
-NOT_EQ_1           : '<>';
-NOT_EQ_2           : '!=';
-AT                 : '@';
-ARROW              : '->';
+
+// Assignment
+
+ASSIGN             : '=';
 ADD_ASSIGN         : '+=';
 SUB_ASSIGN         : '-=';
 MULT_ASSIGN        : '*=';
@@ -119,6 +99,58 @@ LEFT_SHIFT_ASSIGN  : '<<=';
 RIGHT_SHIFT_ASSIGN : '>>=';
 POWER_ASSIGN       : '**=';
 IDIV_ASSIGN        : '//=';
+
+// Comparison
+
+LESS_THAN          : '<';
+GREATER_THAN       : '>';
+EQUALS             : '==';
+GT_EQ              : '>=';
+LT_EQ              : '<=';
+NOT_EQ_1           : '<>';
+NOT_EQ_2           : '!=';
+
+// Logical
+
+OR                 : 'or';
+AND                : 'and';
+NOT                : 'not';
+
+// Identity
+
+IS                 : 'is';
+
+// Bitwise
+
+OR_OP              : '|';
+XOR                : '^';
+AND_OP             : '&';
+LEFT_SHIFT         : '<<';
+RIGHT_SHIFT        : '>>';
+NOT_OP             : '~';
+
+// Other
+
+AT                 : '@';
+
+// Punctuators
+
+DOT                : '.';
+ELLIPSIS           : '...';
+REVERSE_QUOTE      : '`';
+COMMA              : ',';
+COLON              : ':';
+SEMI_COLON         : ';';
+ARROW              : '->';
+
+OPEN_PAREN         : '(' {IncIndentLevel();};
+CLOSE_PAREN        : ')' {DecIndentLevel();};
+OPEN_BRACE         : '{' {IncIndentLevel();};
+CLOSE_BRACE        : '}' {DecIndentLevel();};
+OPEN_BRACKET       : '[' {IncIndentLevel();};
+CLOSE_BRACKET      : ']' {DecIndentLevel();};
+
+// Literals
 
 STRING             : ([uU] | [fF] [rR]? | [rR] [fF]?)? (SHORT_STRING | LONG_STRING)
                    | ([bB] [rR]? | [rR] [bB]) (SHORT_BYTES | LONG_BYTES)
@@ -134,14 +166,9 @@ BIN_INTEGER        : '0' [bB] [01_]+;
 IMAG_NUMBER        : (EXPONENT_OR_POINT_FLOAT | DIGIT_PART) [jJ];
 FLOAT_NUMBER       : EXPONENT_OR_POINT_FLOAT;
 
-OPEN_PAREN         : '(' {IncIndentLevel();};
-CLOSE_PAREN        : ')' {DecIndentLevel();};
-OPEN_BRACE         : '{' {IncIndentLevel();};
-CLOSE_BRACE        : '}' {DecIndentLevel();};
-OPEN_BRACKET       : '[' {IncIndentLevel();};
-CLOSE_BRACKET      : ']' {DecIndentLevel();};
-
 NAME               : ID_START ID_CONTINUE*;
+
+// Hidden
 
 LINE_JOIN          : '\\' [ \t]* RN                        -> channel(HIDDEN);
 NEWLINE            : RN                {HandleNewLine();}  -> channel(HIDDEN);
