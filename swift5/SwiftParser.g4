@@ -327,7 +327,7 @@ declaration
 	;
 
 class_or_struct_member_declaration
-    : import_declaration	
+    : import_declaration
 	| typealias_declaration
 	| field_declaration
 	| function_declaration
@@ -390,7 +390,7 @@ variable_declaration:
 	variable_declaration_head ( variable_name type_annotation ( getter_setter_block
 	                                                          | getter_setter_keyword_block
 															  | initializer? willSet_didSet_block
-															  | code_block) 
+															  | code_block)
 	                          | ( variable_name initializer willSet_didSet_block
 							    | pattern_initializer_list)
 	                          );
@@ -893,8 +893,7 @@ closure_signature:
 	;
 
 closure_parameter_clause:
-	LPAREN ')'
-	| LPAREN closure_parameter (',' closure_parameter)* ')'
+	  LPAREN (closure_parameter (',' closure_parameter)*)? ')'
 	| declaration_identifier (',' declaration_identifier)*
 	;
 

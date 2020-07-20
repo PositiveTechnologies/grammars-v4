@@ -192,21 +192,10 @@ SOURCE_LOCATION_DIRECTIVE	:	'#sourceLocation';
 TRUE	:	'true';
 FALSE	:	'false';
 
-// Punctuation
+// Operators
 
-DOT			:	'.';
-LCURLY		:	'{';
-LPAREN		:	'(' { this.CheckIfInsideInterpolatedExpression(); };
-LBRACK		:	'[';
-RCURLY		:	'}';
-RPAREN		:	')' { this.PopModeOnInterpolatedExpressionClose(); };
-RBRACK		:	']';
-COMMA		:	',';
-COLON		:	':';
-SEMI		:	';';
 LT			:	'<';
 GT			:	'>';
-UNDERSCORE	:	'_';
 BANG		:	'!';
 QUESTION	:	'?';
 AT			:	'@';
@@ -220,9 +209,23 @@ MUL			:	'*';
 MOD			:	'%';
 CARET		:	'^';
 TILDE		:	'~';
+COLON		:	':';
 
+// Punctuation
+
+DOT			:	'.';
+LCURLY		:	'{';
+LPAREN		:	'(' { this.CheckIfInsideInterpolatedExpression(); };
+LBRACK		:	'[';
+RCURLY		:	'}';
+RPAREN		:	')' { this.PopModeOnInterpolatedExpressionClose(); };
+RBRACK		:	']';
+COMMA		:	',';
+SEMI		:	';';
 BACKTICK	:	'`';
 SHARP		:	'#';
+
+UNDERSCORE	:	'_';
 
 // Attributes
 GETTER_ATTR	:	'getter:';
