@@ -13,3 +13,5 @@
 
 # star_expr COMMA test COMMA star_expr
 [*u, a, *i]
+
+a_b = [(a, b) for a, b, *_ in result]

@@ -148,7 +148,7 @@ small_stmt
     | PASS                                                                        #pass_stmt
     | BREAK                                                                       #break_stmt
     | CONTINUE                                                                    #continue_stmt
-    | RETURN testlist?                                                            #return_stmt
+    | RETURN testlist_star_expr?                                                  #return_stmt
     | RAISE (test (COMMA test (COMMA test)?)?)? (FROM test)?                      #raise_stmt
     | yield_expr                                                                  #yield_stmt
     | IMPORT dotted_as_names                                                      #import_stmt
@@ -172,9 +172,7 @@ star_expr
 
 assign_part
     // if left expression in assign is bool literal, it's mean that is Python 2 here
-    : ASSIGN ( testlist_star_expr (ASSIGN testlist_star_expr)* (ASSIGN yield_expr)?
-             | yield_expr)
-    | {CheckVersion(3)}? COLON test (ASSIGN testlist)? {SetVersion(3);} // annassign Python3 rule
+    : {CheckVersion(3)}? COLON test (ASSIGN (yield_expr | testlist_star_expr))? {SetVersion(3);} // annassign Python3 rule
     | op=( ADD_ASSIGN
          | SUB_ASSIGN
          | MULT_ASSIGN
@@ -190,10 +188,11 @@ assign_part
          | IDIV_ASSIGN
          )
       (yield_expr | testlist)
+    | (ASSIGN (yield_expr | testlist_star_expr))+
     ;
 
 exprlist
-    : (expr|star_expr) (COMMA (expr|star_expr))* COMMA?
+    : (expr | star_expr) (COMMA (expr | star_expr))* COMMA?
     ;
 
 import_as_names
@@ -333,7 +332,7 @@ yield_expr
 
 yield_arg
     : FROM test
-    | testlist
+    | testlist_star_expr
     ;
 
 // TODO: this way we can pass: `f(x for x in i, a)`, but it's invalid.
