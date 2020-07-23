@@ -193,7 +193,7 @@ assign_part
     ;
 
 exprlist
-    : expr (COMMA expr)* COMMA?
+    : (expr|star_expr) (COMMA (expr|star_expr))* COMMA?
     ;
 
 import_as_names
