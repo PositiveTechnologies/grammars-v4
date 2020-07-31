@@ -162,8 +162,7 @@ small_stmt
     ;
 
 testlist_star_expr
-    : ((test | star_expr) COMMA)+ (test | star_expr)?
-    | testlist
+    : (test | star_expr) (COMMA (test | star_expr))* COMMA?
     ;
 
 star_expr
