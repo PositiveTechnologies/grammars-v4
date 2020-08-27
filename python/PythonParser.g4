@@ -162,7 +162,7 @@ small_stmt
     ;
 
 testlist_star_expr
-    : (test | star_expr) (COMMA (test | star_expr))* COMMA?
+    : test_or_star_expr (COMMA test_or_star_expr)* COMMA?
     ;
 
 star_expr
@@ -288,13 +288,23 @@ atom
     ;
 
 dictorsetmaker
-    : (test COLON test | POWER expr) (COMMA (test COLON test | POWER expr))* COMMA? // key_datum_list
-    | test COLON test comp_for                                                      // dict_comprehension
+    : dic_item_init (COMMA dic_item_init)* COMMA? // key_datum_list
+    | test COLON test comp_for                    // dict_comprehension
     | testlist_comp
     ;
 
+dic_item_init
+    : test COLON test
+    | POWER expr
+    ;
+
 testlist_comp
-    : (test | star_expr) (comp_for | (COMMA (test | star_expr))* COMMA?)
+    : test_or_star_expr (comp_for | (COMMA test_or_star_expr)* COMMA?)
+    ;
+
+test_or_star_expr
+    : test
+    | star_expr
     ;
 
 testlist
