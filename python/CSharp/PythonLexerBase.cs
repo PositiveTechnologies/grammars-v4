@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Antlr4.Runtime;
 
 namespace PythonParseTree
 {
     public abstract class PythonLexerBase : Lexer
     {
+        private bool _insideString;
+
+        private Stack<int> _fstringQuotes = new Stack<int>();
+
+        private int _fInterpolatedLevel;
+
         public static int TabSize { get; set; } = 8;
 
         public PythonVersion Version { get; set; }
@@ -186,6 +193,43 @@ namespace PythonParseTree
                 };
 #endif
             Emit(token);
+        }
+
+        protected void PopModeOnInterpolatedExpressionClose()
+        {
+            if (_insideString)
+            {
+                _insideString = false;
+                _fInterpolatedLevel--;
+                Channel = Hidden;
+                PopMode();
+            }
+        }
+
+        protected void SetInsideString()
+        {
+            _insideString = true;
+            _fInterpolatedLevel++;
+            IncIndentLevel();
+        }
+
+        protected void PushFstringQuote()
+        {
+            _fstringQuotes.Push(_input.La(-1));
+        }
+
+        protected void CheckIfClosedQuote()
+        {
+            if (_fstringQuotes.Peek() == _input.La(-1))
+            {
+                _fstringQuotes.Pop();
+                PopMode();
+
+                if (_fInterpolatedLevel > 0)
+                {
+                    _insideString = true;
+                }
+            }
         }
     }
 }

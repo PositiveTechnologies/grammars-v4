@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Antlr4.Runtime;
 
 namespace PythonParseTree
@@ -20,5 +21,13 @@ namespace PythonParseTree
         protected bool CheckVersion(int version) => Version == PythonVersion.Autodetect || version == (int) Version;
 
         protected void SetVersion(int requiredVersion) => Version = (PythonVersion) requiredVersion;
+
+        protected bool CheckQuotes()
+        {
+            var first = _ctx.GetChild(0);
+            var last = _ctx.GetChild(_ctx.ChildCount - 1);
+
+            return first.GetText() == last.GetText() && last.GetText() != "f";
+        }
     }
 }

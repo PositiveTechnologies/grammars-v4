@@ -146,15 +146,16 @@ ARROW              : '->';
 OPEN_PAREN         : '(' {IncIndentLevel();};
 CLOSE_PAREN        : ')' {DecIndentLevel();};
 OPEN_BRACE         : '{' {IncIndentLevel();};
-CLOSE_BRACE        : '}' {DecIndentLevel();};
+CLOSE_BRACE        : '}' {DecIndentLevel(); PopModeOnInterpolatedExpressionClose();};
 OPEN_BRACKET       : '[' {IncIndentLevel();};
 CLOSE_BRACKET      : ']' {DecIndentLevel();};
 
 // Literals
 
-STRING             : ([uU] | [fF] [rR]? | [rR] [fF]?)? (SHORT_STRING | LONG_STRING)
-                   | ([bB] [rR]? | [rR] [bB]) (SHORT_BYTES | LONG_BYTES)
-                   ;
+STRING             : [uU]? [rR]? (SHORT_STRING | LONG_STRING)
+                   | ([bB] [rR]? | [rR] [bB]) (SHORT_BYTES | LONG_BYTES);
+
+FSTRING_QUOTE      :  ([fF] [rR]? | [rR] [fF]) ('"' | '\'') { PushFstringQuote(); } -> pushMode(InterpolationString);
 
 DECIMAL_INTEGER    : [1-9] [0-9_]*
                    | '0' [0_]*
@@ -175,6 +176,12 @@ NEWLINE            : RN                {HandleNewLine();}  -> channel(HIDDEN);
 WS                 : [ \t]+            {HandleSpaces();}   -> channel(HIDDEN);
 COMMENT            : '#' ~[\r\n\f]*                        -> channel(HIDDEN);
 
+mode InterpolationString;
+ESCAPED_BRACKET: '{{' -> type(STRING_PART);
+INTERPOLATION_EXPRESSION: '{' { SetInsideString(); }-> channel(HIDDEN), pushMode(DEFAULT_MODE);
+CLOSE_STRING: ('"' | '\'') { CheckIfClosedQuote(); };
+STRING_PART: INTERPOLATION_SHORT_STRING_ITEM+;
+
 // Fragments
 
 fragment SHORT_STRING
@@ -185,6 +192,10 @@ fragment SHORT_STRING
 fragment LONG_STRING
     : '\'\'\'' LONG_STRING_ITEM*? '\'\'\''
     | '"""' LONG_STRING_ITEM*? '"""'
+    ;
+
+fragment INTERPOLATION_SHORT_STRING_ITEM
+    : '\\' (RN | .) | ~[\\\r\n'"{]
     ;
 
 fragment LONG_STRING_ITEM

@@ -282,10 +282,25 @@ atom
     | name
     | number
     | NONE
-    | STRING+
+    | string_literal
 
     | {CheckVersion(3)}? (TRUE | FALSE)
     ;
+
+string_literal
+    : static_string_literal
+    | FSTRING_QUOTE string_literal_content* CLOSE_STRING
+    ;
+
+static_string_literal
+    : STRING+
+    | CLOSE_STRING STRING_PART* CLOSE_STRING
+    ;
+
+string_literal_content
+    : STRING_PART+
+    | expr
+	;
 
 dictorsetmaker
     : dic_item_init (COMMA dic_item_init)* COMMA? // key_datum_list
