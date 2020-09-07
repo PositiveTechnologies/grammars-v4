@@ -230,6 +230,11 @@ namespace PythonParseTree
                     _insideString = true;
                 }
             }
+            else
+            {
+                var s = new string(new char[] { (char) _input.La(-1) });
+                Emit(PythonLexer.STRING_PART, DefaultTokenChannel, s);
+            }
         }
     }
 }

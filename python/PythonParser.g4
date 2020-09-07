@@ -287,14 +287,11 @@ atom
     | {CheckVersion(3)}? (TRUE | FALSE)
     ;
 
-string_literal
-    : static_string_literal
-    | FSTRING_QUOTE string_literal_content* CLOSE_STRING
-    ;
+string_literal : string_literal_part+;
 
-static_string_literal
-    : STRING+
-    | CLOSE_STRING STRING_PART* CLOSE_STRING
+string_literal_part
+    : STRING
+    | FSTRING_QUOTE string_literal_content* CLOSE_STRING
     ;
 
 string_literal_content
