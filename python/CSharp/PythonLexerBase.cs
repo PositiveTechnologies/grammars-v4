@@ -236,5 +236,7 @@ namespace PythonParseTree
                 Emit(PythonLexer.STRING_PART, DefaultTokenChannel, s);
             }
         }
+
+        protected bool IsConversionInsideInterpolation() => _fInterpolatedLevel > 0;
     }
 }

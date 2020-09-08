@@ -296,8 +296,10 @@ string_literal_part
 
 string_literal_content
     : STRING_PART+
-    | expr
+    | replacement_field
 	;
+
+replacement_field: (expr | testlist_star_expr | yield_expr) ASSIGN? CONVERSION? (COLON (replacement_field | COMMENT | STRING_PART)+)?;
 
 dictorsetmaker
     : dic_item_init (COMMA dic_item_init)* COMMA? // key_datum_list

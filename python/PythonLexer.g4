@@ -171,6 +171,8 @@ NAME               : ID_START ID_CONTINUE*;
 
 // Hidden
 
+CONVERSION: '!' ('r' | 's' | 'a') { IsConversionInsideInterpolation() }? -> channel(HIDDEN);
+
 LINE_JOIN          : '\\' [ \t]* RN                        -> channel(HIDDEN);
 NEWLINE            : RN                {HandleNewLine();}  -> channel(HIDDEN);
 WS                 : [ \t]+            {HandleSpaces();}   -> channel(HIDDEN);
