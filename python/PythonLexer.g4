@@ -150,6 +150,9 @@ CLOSE_BRACE        : '}' {DecIndentLevel(); PopModeOnInterpolatedExpressionClose
 OPEN_BRACKET       : '[' {IncIndentLevel();};
 CLOSE_BRACKET      : ']' {DecIndentLevel();};
 
+FORMAT_SPEC: '#'  { IsConversionInsideInterpolation() }? ~[{}]*;
+CONVERSION: '!' ('r' | 's' | 'a') { IsConversionInsideInterpolation() }?;
+
 // Literals
 
 STRING             : [uU]? [rR]? (SHORT_STRING | LONG_STRING)
@@ -171,12 +174,10 @@ NAME               : ID_START ID_CONTINUE*;
 
 // Hidden
 
-CONVERSION: '!' ('r' | 's' | 'a') { IsConversionInsideInterpolation() }? -> channel(HIDDEN);
-
 LINE_JOIN          : '\\' [ \t]* RN                        -> channel(HIDDEN);
 NEWLINE            : RN                {HandleNewLine();}  -> channel(HIDDEN);
 WS                 : [ \t]+            {HandleSpaces();}   -> channel(HIDDEN);
-COMMENT            : '#' ~[\r\n\f]*                        -> channel(HIDDEN);
+COMMENT            :'#'  { !IsConversionInsideInterpolation() }? ~[\r\n\f]* -> channel(HIDDEN);
 
 mode InterpolationString;
 ESCAPED_BRACKET: '{{' -> type(STRING_PART);

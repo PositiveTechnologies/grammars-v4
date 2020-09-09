@@ -237,6 +237,6 @@ namespace PythonParseTree
             }
         }
 
-        protected bool IsConversionInsideInterpolation() => _fInterpolatedLevel > 0;
+        protected bool IsConversionInsideInterpolation() => _insideString;
     }
 }
