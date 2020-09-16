@@ -342,7 +342,7 @@ inlineHtmlStatement
     ;
 
 declareList
-    : identifierInititalizer (',' identifierInititalizer)*
+    : identifierInitializer (',' identifierInitializer)*
     ;
 
 formalParameterList
@@ -379,7 +379,7 @@ staticVariableStatement
 
 classStatement
     : attributes propertyModifiers typeHint? variableInitializer (',' variableInitializer)* SemiColon
-    | attributes memberModifiers? Const typeHint? identifierInititalizer (',' identifierInititalizer)* SemiColon
+    | attributes memberModifiers? Const typeHint? identifierInitializer (',' identifierInitializer)* SemiColon
     | attributes memberModifiers? Function '&'? identifier
           typeParameterListInBrackets? '(' formalParameterList ')' baseCtorCall? methodBody
     | Use qualifiedNamespaceNameList traitAdaptations
@@ -426,15 +426,15 @@ memberModifiers
     ;
 
 variableInitializer
-    : VarName (Eq constantInititalizer)?
+    : VarName (Eq constantInitializer)?
     ;
 
-identifierInititalizer
-    : identifier Eq constantInititalizer
+identifierInitializer
+    : identifier Eq constantInitializer
     ;
 
 globalConstantDeclaration
-    : attributes Const identifierInititalizer (',' identifierInititalizer)* SemiColon
+    : attributes Const identifierInitializer (',' identifierInitializer)* SemiColon
     ;
 
 expressionList
@@ -614,12 +614,12 @@ actualArgument
     | '&' chain
     ;
 
-constantInititalizer
+constantInitializer
     : constant
     | string
     | Array '(' (arrayItemList ','?)? ')'
     | '[' (arrayItemList ','?)? ']'
-    | ('+' | '-') constantInititalizer
+    | ('+' | '-') constantInitializer
     ;
 
 constant
