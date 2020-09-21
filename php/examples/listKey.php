@@ -5,7 +5,9 @@ $data = [
 ];
 
 // list() style
-list(1,2);
+$info = array('coffee', 'brown', 'caffeine');
+list($drink, $color, $power) = $info;
+
 list("id" => $id1, "name" => $name1) = $data[0];
 
 // [] style
