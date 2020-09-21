@@ -290,12 +290,18 @@ BackQuote:          '`';
 
 VarName:            '$' NameString;
 Id:                 [a-z_][a-z_0-9]*;
-Octal:              '0' [0-7]+;
-Decimal:            Digit+;
-Real:               (Digit+ '.' Digit* | '.' Digit+) ExponentPart?
-    |               Digit+ ExponentPart;
-Hex:                '0x' HexDigit+;
-Binary:             '0b' [01_]+;
+Decimal:            '0'
+       |            [1-9] Digit* DigitPart*;
+Hex:                '0x' HexDigit+ ('_' HexDigit+)*;
+Octal:              '0' [0-7]+ ('_' [0-7]+)*;
+Binary:             '0b' [01]+ ('_' [01]+)*;
+Real:               (Digit+ DigitPart* '.' Digit* DigitPart* | '.' Digit+ DigitPart*) ExponentPart?
+    |               Digit+ DigitPart* ExponentPart;
+
+fragment DigitPart:     '_' Digit+;
+fragment ExponentPart:  'e' [+-]? Digit+;
+fragment Digit:         [0-9];
+fragment HexDigit:      [a-f0-9];
 
 BackQuoteString:   '`' ~'`'* '`';
 SingleQuoteString: '\'' (~('\'' | '\\') | '\\' . )* '\'';
@@ -356,7 +362,4 @@ fragment HtmlNameChar
     | '\u0300'..'\u036F'
     | '\u203F'..'\u2040'
     ;
-fragment ExponentPart:         'e' [+-]? Digit+;
-fragment Digit:                [0-9_];
-fragment HexDigit:             [a-f0-9_];
 fragment Space:                [ \t\r\n]+;
