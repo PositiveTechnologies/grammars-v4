@@ -116,15 +116,15 @@ MultiLineComment:   '/*' .*? '*/' -> channel(PhpComments);
 SingleLineComment:  '//' -> channel(SkipChannel), pushMode(SingleLineCommentMode);
 ShellStyleComment:  '#' -> channel(SkipChannel), pushMode(SingleLineCommentMode);
 
+// Reserved keywords, https://www.php.net/manual/en/reserved.keywords.php
+
+HaltCompiler:       '__halt_compiler';
 Abstract:           'abstract';
+And:                'and';
 Array:              'array';
 As:                 'as';
-BinaryCast:         'binary';
-BoolType:           'bool' 'ean'?;
-BooleanConstant:    'true'
-               |    'false';
 Break:              'break';
-Callable:           'callable';
+Callable:           'callable' {CheckVersion(Php.V54)}?;
 Case:               'case';
 Catch:              'catch';
 Class:              'class';
@@ -133,104 +133,92 @@ Const:              'const';
 Continue:           'continue';
 Declare:            'declare';
 Default:            'default';
+Die:                'die';
 Do:                 'do';
-DoubleCast:         'real';
-DoubleType:         'double';
 Echo:               'echo';
 Else:               'else';
 ElseIf:             'elseif';
 Empty:              'empty';
-
 EndDeclare:         'enddeclare';
 EndFor:             'endfor';
 EndForeach:         'endforeach';
 EndIf:              'endif';
 EndSwitch:          'endswitch';
 EndWhile:           'endwhile';
-
 Eval:               'eval';
-Exit:               'die';
+Exit:               'exit';
 Extends:            'extends';
 Final:              'final';
-Finally:            'finally';
-FloatCast:          'float';
+Finally:            'finally' {CheckVersion(Php.V55)}?;
+Fn:                 'fn' {CheckVersion(Php.V74)}?;
 For:                'for';
 Foreach:            'foreach';
 Function:           'function';
 Global:             'global';
-Goto:               'goto';
+Goto:               'goto' {CheckVersion(Php.V53)}?;
 If:                 'if';
 Implements:         'implements';
-Import:             'import';
 Include:            'include';
 IncludeOnce:        'include_once';
 InstanceOf:         'instanceof';
-InsteadOf:          'insteadof';
-Int8Cast:           'int8';
-Int16Cast:          'int16';
-Int64Type:          'int64';
-IntType:            'int' 'eger'?;
+InsteadOf:          'insteadof' {CheckVersion(Php.V54)}?;
 Interface:          'interface';
 IsSet:              'isset';
 List:               'list';
-LogicalAnd:         'and';
-LogicalOr:          'or';
-LogicalXor:         'xor';
-Namespace:          'namespace';
+Namespace:          'namespace' {CheckVersion(Php.V53)}?;
 New:                'new';
-Null:               'null';
-ObjectType:         'object';
-Parent_:            'parent';
-Partial:            'partial';
+Or:                 'or';
 Print:              'print';
 Private:            'private';
 Protected:          'protected';
 Public:             'public';
 Require:            'require';
 RequireOnce:        'require_once';
-Resource:           'resource';
 Return:             'return';
 Static:             'static';
-StringType:         'string';
 Switch:             'switch';
 Throw:              'throw';
-Trait:              'trait';
+Trait:              'trait' {CheckVersion(Php.V54)}?;
 Try:                'try';
-Typeof:             'clrtypeof';
-UintCast:           'uint' ('8' | '16' | '64')?;
-UnicodeCast:        'unicode';
 Unset:              'unset';
 Use:                'use';
 Var:                'var';
 While:              'while';
-Yield:              'yield';
-From:               'from';
-LambdaFn:           'fn';
+Xor:                'xor';
+Yield:              'yield' {CheckVersion(Php.V55)}?;
+YieldFrom:          'yield' Space+ 'from' {CheckVersion(Php.V7)}?;
 
-Get:                '__get';
-Set:                '__set';
-Call:               '__call';
-CallStatic:         '__callstatic';
-Constructor:        '__construct';
-Destruct:           '__destruct';
-Wakeup:             '__wakeup';
-Sleep:              '__sleep';
-Autoload:           '__autoload';
-IsSet__:            '__isset';
-Unset__:            '__unset';
-ToString__:         '__tostring';
-Invoke:             '__invoke';
-SetState:           '__set_state';
-Clone__:            '__clone';
-DebugInfo:          '__debuginfo';
-Namespace__:        '__namespace__';
+// Compile-time constants
+
 Class__:            '__class__';
-Traic__:            '__trait__';
-Function__:         '__function__';
-Method__:           '__method__';
-Line__:             '__line__';
+Dir__:              '__dir__' {CheckVersion(Php.V53)}?;
 File__:             '__file__';
-Dir__:              '__dir__';
+Function__:         '__function__';
+Line__:             '__line__';
+Method__:           '__method__';
+Namespace__:        '__namespace__' {CheckVersion(Php.V53)}?;
+Trait__:            '__trait__' {CheckVersion(Php.V54)}?;
+
+// https://www.php.net/manual/en/reserved.other-reserved-words.php
+
+Int:                'int' {CheckVersion(Php.V7)}?;
+Float:              'float' {CheckVersion(Php.V7)}?;
+Bool:               'bool' {CheckVersion(Php.V7)}?;
+String:             'string' {CheckVersion(Php.V7)}?;
+True:               'true' {CheckVersion(Php.V7)}?;
+False:              'false' {CheckVersion(Php.V7)}?;
+Null:               'null' {CheckVersion(Php.V7)}?;
+Void:               'void' {CheckVersion(Php.V71)}?;
+Iterable:           'iterable' {CheckVersion(Php.V71)}?;
+Object:             'object' {CheckVersion(Php.V72)}?;
+
+// Soft reserved words
+
+Resource:           'resource' {CheckVersion(Php.V7)}?;
+Mixed:              'mixed' {CheckVersion(Php.V7)}?;
+Numeric:            'numeric' {CheckVersion(Php.V7)}?;
+
+// Operators
 
 Spaceship:          '<=>';
 Lgeneric:           '<:';
@@ -301,7 +289,7 @@ Quote:              '\'';
 BackQuote:          '`';
 
 VarName:            '$' NameString;
-Label:              [a-z_][a-z_0-9]*;
+Id:                 [a-z_][a-z_0-9]*;
 Octal:              '0' [0-7]+;
 Decimal:            Digit+;
 Real:               (Digit+ '.' Digit* | '.' Digit+) ExponentPart?
@@ -371,3 +359,4 @@ fragment HtmlNameChar
 fragment ExponentPart:         'e' [+-]? Digit+;
 fragment Digit:                [0-9_];
 fragment HexDigit:             [a-f0-9_];
+fragment Space:                [ \t\r\n]+;

@@ -26,6 +26,19 @@ THE SOFTWARE.
 using Antlr4.Runtime;
 using static PhpParseTree.PhpLexer;
 
+public enum Php
+{
+    Autodetect,
+    V521 = 521,
+    V53  = 530,
+    V54  = 540,
+    V55  = 550,
+    V7   = 700,
+    V71  = 710,
+    V72  = 720,
+    V74  = 740
+}
+
 public abstract class PhpLexerBase : Lexer
 {
     private bool AspTags = true;
@@ -37,9 +50,21 @@ public abstract class PhpLexerBase : Lexer
     protected bool _scriptTag;
     protected bool _styleTag;
 
+    public Php Version { get; set; }
+
     protected PhpLexerBase(ICharStream input)
         : base(input)
     {
+    }
+
+    protected bool CheckVersion(Php version) => Version == Php.Autodetect || version >= Version;
+
+    protected void SetVersion(Php requiredVersion)
+    {
+        if (Version < requiredVersion)
+        {
+            Version = requiredVersion;
+        }
     }
 
     public override IToken NextToken()

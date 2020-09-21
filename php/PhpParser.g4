@@ -25,7 +25,10 @@ THE SOFTWARE.
 
 parser grammar PhpParser;
 
-options { tokenVocab=PhpLexer; }
+options {
+    tokenVocab=PhpLexer;
+    superClass=PhpParserBase;
+}
 
 // HTML
 // Also see here: https://github.com/antlr/grammars-v4/tree/master/html
@@ -77,11 +80,7 @@ scriptText
 // PHP
 
 phpBlock
-    : importStatement* topStatement+
-    ;
-
-importStatement
-    : Import Namespace namespaceNameList SemiColon
+    : topStatement+
     ;
 
 topStatement
@@ -118,13 +117,15 @@ namespaceStatement
     ;
 
 functionDeclaration
-    : attributes Function '&'? identifier typeParameterListInBrackets? '(' formalParameterList ')' (':' QuestionMark? typeHint)? blockStatement
+    : attributes Function '&'? id typeParameterListInBrackets? '(' formalParameterList ')' (':' QuestionMark? typeHint)? blockStatement
     ;
 
 classDeclaration
-    : attributes Private? modifier? Partial? (
-      classEntryType identifier typeParameterListInBrackets? (Extends qualifiedStaticTypeRef)? (Implements interfaceList)?
-    | Interface identifier typeParameterListInBrackets? (Extends interfaceList)? )
+    : attributes Private? modifier?
+    (
+      classEntryType id typeParameterListInBrackets? (Extends qualifiedStaticTypeRef)? (Implements interfaceList)? |
+      Interface id typeParameterListInBrackets? (Extends interfaceList)?
+    )
       OpenCurlyBracket classStatement* CloseCurlyBracket
     ;
 
@@ -152,11 +153,11 @@ typeParameterWithDefaultsList
     ;
 
 typeParameterDecl
-    : attributes identifier
+    : attributes id
     ;
 
 typeParameterWithDefaultDecl
-    : attributes identifier Eq (qualifiedStaticTypeRef | primitiveType)
+    : attributes id Eq (qualifiedStaticTypeRef | primitiveType)
     ;
 
 genericDynamicArgs
@@ -168,7 +169,7 @@ attributes
     ;
 
 attributesGroup
-    : '[' (identifier ':')? attribute (',' attribute)* ']'
+    : '[' (id ':')? attribute (',' attribute)* ']'
     ;
 
 attribute
@@ -203,7 +204,7 @@ innerStatement
 // Statements
 
 statement
-    : identifier ':'
+    : id ':'
     | blockStatement
     | ifStatement
     | whileStatement
@@ -330,7 +331,7 @@ throwStatement
     ;
 
 gotoStatement
-    : Goto identifier SemiColon
+    : Goto id SemiColon
     ;
 
 declareStatement
@@ -342,7 +343,7 @@ inlineHtmlStatement
     ;
 
 declareList
-    : identifierInititalizer (',' identifierInititalizer)*
+    : identifierInitializer (',' identifierInitializer)*
     ;
 
 formalParameterList
@@ -365,8 +366,7 @@ globalStatement
 
 globalVar
     : VarName
-    | Dollar chain
-    | Dollar OpenCurlyBracket expression CloseCurlyBracket
+    | Dollar (chain | OpenCurlyBracket expression CloseCurlyBracket)
     ;
 
 echoStatement
@@ -379,10 +379,13 @@ staticVariableStatement
 
 classStatement
     : attributes propertyModifiers typeHint? variableInitializer (',' variableInitializer)* SemiColon
-    | attributes memberModifiers? Const typeHint? identifierInititalizer (',' identifierInititalizer)* SemiColon
-    | attributes memberModifiers? Function '&'? identifier
-          typeParameterListInBrackets? '(' formalParameterList ')' baseCtorCall? methodBody
+    | attributes memberModifiers? Const typeHint? classIdentifierInitializer (',' classIdentifierInitializer)* SemiColon
+    | attributes memberModifiers? Function '&'? entityId typeParameterListInBrackets? '(' formalParameterList ')' baseCtorCall? methodBody
     | Use qualifiedNamespaceNameList traitAdaptations
+    ;
+
+classIdentifierInitializer
+    : entityId Eq constantInititalizer
     ;
 
 traitAdaptations
@@ -396,19 +399,15 @@ traitAdaptationStatement
     ;
 
 traitPrecedence
-    : qualifiedNamespaceName '::' identifier InsteadOf qualifiedNamespaceNameList SemiColon
+    : qualifiedNamespaceName '::' id InsteadOf qualifiedNamespaceNameList SemiColon
     ;
 
 traitAlias
-    : traitMethodReference As (memberModifier | memberModifier? identifier) SemiColon
-    ;
-
-traitMethodReference
-    : (qualifiedNamespaceName '::')? identifier
+    : (qualifiedNamespaceName '::')? id As (memberModifier | memberModifier? id) SemiColon
     ;
 
 baseCtorCall
-    : ':' identifier arguments?
+    : ':' id arguments?
     ;
 
 methodBody
@@ -429,12 +428,12 @@ variableInitializer
     : VarName (Eq constantInititalizer)?
     ;
 
-identifierInititalizer
-    : identifier Eq constantInititalizer
+globalConstantDeclaration
+    : attributes Const identifierInitializer (',' identifierInitializer)* SemiColon
     ;
 
-globalConstantDeclaration
-    : attributes Const identifierInititalizer (',' identifierInititalizer)* SemiColon
+identifierInitializer
+    : id Eq constantInititalizer
     ;
 
 expressionList
@@ -466,7 +465,7 @@ expression
     | chain                                                     #ChainExpression
     | constant                                                  #ScalarExpression
     | string                                                    #ScalarExpression
-    | Label                                                     #ScalarExpression
+    | id                                                        #ScalarExpression
 
     | BackQuoteString                                           #BackQuoteStringExpression
     | parentheses                                               #ParenthesisExpression
@@ -477,13 +476,14 @@ expression
     | IsSet '(' chainList ')'                                   #SpecialWordExpression
     | Empty '(' chain ')'                                       #SpecialWordExpression
     | Eval '(' expression ')'                                   #SpecialWordExpression
-    | Exit ( '(' ')' | parentheses )?                           #SpecialWordExpression
+    | (Exit | Die) ( '(' ')' | parentheses )?                   #SpecialWordExpression
     | (Include | IncludeOnce) expression                        #SpecialWordExpression
     | (Require | RequireOnce) expression                        #SpecialWordExpression
+    | HaltCompiler '(' ')'                                      #SpecialWordExpression
 
     | Static? Function '&'? '(' formalParameterList ')' lambdaFunctionUseVars? (':' typeHint)? blockStatement
                                                                 #LambdaFunctionExpression
-    | LambdaFn '(' formalParameterList')' '=>' expression       #LambdaFunctionExpression
+    | Fn '(' formalParameterList')' '=>' expression             #LambdaFunctionExpression
 
     | <assoc=right> expression op='**' expression               #ArithmeticExpression
     | expression InstanceOf typeRef                             #InstanceOfExpression
@@ -508,9 +508,9 @@ expression
     | assignable assignmentOperator expression                  #AssignmentExpression
     | assignable Eq '&' (chain | newExpr)                       #AssignmentExpression
 
-    | expression op=LogicalAnd expression                       #LogicalExpression
-    | expression op=LogicalXor expression                       #LogicalExpression
-    | expression op=LogicalOr expression                        #LogicalExpression
+    | expression op=And expression                              #LogicalExpression
+    | expression op=Xor expression                              #LogicalExpression
+    | expression op=Or expression                               #LogicalExpression
     ;
 
 assignable
@@ -544,7 +544,8 @@ assignmentOperator
     ;
 
 yieldExpression
-    : Yield (expression ('=>' expression)? | From expression)
+    : Yield expression ('=>' expression)? {SetVersion(Php.V55);}
+    | YieldFrom expression {SetVersion(Php.V7);}
     ;
 
 arrayItemList
@@ -577,9 +578,9 @@ typeRef
     ;
 
 anonymousClass
-    : attributes Private? modifier? Partial? (
+    : attributes Private? modifier? (
       classEntryType typeParameterListInBrackets? (Extends qualifiedStaticTypeRef)? (Implements interfaceList)?
-    | Interface identifier typeParameterListInBrackets? (Extends interfaceList)? )
+    | Interface id typeParameterListInBrackets? (Extends interfaceList)? )
       OpenCurlyBracket classStatement* CloseCurlyBracket
     ;
 
@@ -592,12 +593,11 @@ qualifiedNamespaceName
     ;
 
 namespaceNameList
-    : identifier
-    | identifier ('\\' identifier)* ('\\' namespaceNameTail)?
+    : id ('\\' id)* ('\\' namespaceNameTail)?
     ;
 
 namespaceNameTail
-    : identifier (As identifier)?
+    : id (As id)?
     | OpenCurlyBracket namespaceNameTail (','namespaceNameTail)* ','? CloseCurlyBracket
     ;
 
@@ -632,7 +632,8 @@ constant
 
 literalConstant
     : Real
-    | BooleanConstant
+    | True
+    | False
     | numericConstant
     | stringConstant
     ;
@@ -645,12 +646,11 @@ numericConstant
     ;
 
 classConstant
-    : (Class | Parent_) '::' (identifier | Constructor | Get | Set)
-    | (qualifiedStaticTypeRef | keyedVariable | string) '::' (identifier | keyedVariable) // 'foo'::$bar works in php7
+    : (qualifiedStaticTypeRef | keyedVariable | string | Class) '::' (entityId | keyedVariable) // 'foo'::$bar works in php7
     ;
 
 stringConstant
-    : Label
+    : Id
     ;
 
 string
@@ -672,7 +672,6 @@ chainList
 
 chain
     : chainOrigin memberAccess*
-    //| arrayCreation // [$a,$b]=$c
     ;
 
 chainOrigin
@@ -711,7 +710,7 @@ keyedFieldName
     ;
 
 keyedSimpleFieldName
-    : (identifier | OpenCurlyBracket expression CloseCurlyBracket) squareCurlyExpression*
+    : (entityId | OpenCurlyBracket expression CloseCurlyBracket) squareCurlyExpression*
     ;
 
 keyedVariable
@@ -738,15 +737,14 @@ modifier
     | Final
     ;
 
-identifier
-    : Label
-
-    | Abstract
+entityId
+    : id
+    | {CheckVersion(Php.V7)}?
+    (// HaltCompiler
+      Abstract
+    | And
     | Array
     | As
-    | BinaryCast
-    | BoolType
-    | BooleanConstant
     | Break
     | Callable
     | Case
@@ -757,9 +755,8 @@ identifier
     | Continue
     | Declare
     | Default
+    | Die
     | Do
-    | DoubleCast
-    | DoubleType
     | Echo
     | Else
     | ElseIf
@@ -775,7 +772,7 @@ identifier
     | Extends
     | Final
     | Finally
-    | FloatCast
+    | Fn
     | For
     | Foreach
     | Function
@@ -783,75 +780,63 @@ identifier
     | Goto
     | If
     | Implements
-    | Import
     | Include
     | IncludeOnce
     | InstanceOf
     | InsteadOf
-    | Int16Cast
-    | Int64Type
-    | Int8Cast
     | Interface
-    | IntType
     | IsSet
     | List
-    | LogicalAnd
-    | LogicalOr
-    | LogicalXor
     | Namespace
     | New
-    | Null
-    | ObjectType
-    | Parent_
-    | Partial
+    | Or
     | Print
     | Private
     | Protected
     | Public
     | Require
     | RequireOnce
-    | Resource
     | Return
     | Static
-    | StringType
     | Switch
     | Throw
     | Trait
     | Try
-    | Typeof
-    | UintCast
-    | UnicodeCast
     | Unset
     | Use
     | Var
     | While
+    | Xor
     | Yield
-    | From
 
-    | Get
-    | Set
-    | Call
-    | CallStatic
-    | Constructor
-    | Destruct
-    | Wakeup
-    | Sleep
-    | Autoload
-    | IsSet__
-    | Unset__
-    | ToString__
-    | Invoke
-    | SetState
-    | Clone__
-    | DebugInfo
-    | Namespace__
     | Class__
-    | Traic__
-    | Function__
-    | Method__
-    | Line__
-    | File__
     | Dir__
+    | File__
+    | Function__
+    | Line__
+    | Method__
+    | Namespace__
+    | Trait__
+
+    | Int
+    | Float
+    | Bool
+    | String
+    | True
+    | False
+    | Null
+    | Void
+    | Iterable
+    | Object
+
+    ) {SetVersion(Php.V7);}
+    ;
+
+id
+    : Id
+    | Resource
+    | Mixed
+    | Numeric
     ;
 
 memberModifier
@@ -864,61 +849,33 @@ memberModifier
     ;
 
 magicConstant
-    : Namespace__
-    | Class__
-    | Traic__
-    | Function__
-    | Method__
-    | Line__
+    : Line__
     | File__
     | Dir__
-    ;
-
-magicMethod
-    : Get
-    | Set
-    | Call
-    | CallStatic
-    | Constructor
-    | Destruct
-    | Wakeup
-    | Sleep
-    | Autoload
-    | IsSet__
-    | Unset__
-    | ToString__
-    | Invoke
-    | SetState
-    | Clone__
-    | DebugInfo
+    | Function__
+    | Class__
+    | Trait__
+    | Method__
+    | Namespace__
     ;
 
 primitiveType
-    : BoolType
-    | IntType
-    | Int64Type
-    | DoubleType
-    | StringType
+    : Bool
+    | Int
+    | Float
+    | String
     | Resource
-    | ObjectType
+    | Object
     | Array
     ;
 
 castOperation
-    : BoolType
-    | Int8Cast
-    | Int16Cast
-    | IntType
-    | Int64Type
-    | UintCast
-    | DoubleCast
-    | DoubleType
-    | FloatCast
-    | StringType
-    | BinaryCast
-    | UnicodeCast
+    : {MatchInt()}? int=(Int | Id)
+    | {MatchBool()}? bool=(Bool | Id)
+    | {MatchFloat()}? float=(Float | Id)
+    | {Next("string")}? string_=(String | Id)
     | Array
-    | ObjectType
-    | Resource
+    | {Next("object")}? object=(Object | Id)
     | Unset
+    | {CheckVersion(Php.V521)}? {Next("binary")}? Id {SetVersion(Php.V521);}
     ;
