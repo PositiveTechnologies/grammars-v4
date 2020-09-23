@@ -3010,7 +3010,7 @@ statement
     | raise_statement
     | return_statement
     | case_statement
-    | sql_statement 
+    | sql_statement
     | body
     | block
     | function_call
@@ -3691,9 +3691,11 @@ cursor_expression
     ;
 
 logical_expression
-    : logical_expression OR logical_expression
-    | logical_expression AND logical_expression
-    | unary_logical_expression
+    : logical_and_expression (OR logical_and_expression)*
+    ;
+
+logical_and_expression
+    : unary_logical_expression (AND unary_logical_expression)*
     ;
 
 unary_logical_expression
@@ -3712,8 +3714,7 @@ multiset_expression
     ;
 
 relational_expression
-    : relational_expression relational_operator relational_expression
-    | compound_expression
+    : compound_expression (relational_operator compound_expression)*
     ;
 
 compound_expression
@@ -3742,12 +3743,23 @@ between_elements
     ;
 
 concatenation
-    : concatenation op=(ASTERISK | SOLIDUS) concatenation
-    | concatenation op=(PLUS_SIGN | MINUS_SIGN) concatenation
-    | concatenation op=MOD concatenation
-    | concatenation BAR BAR concatenation
-    | model_expression
-        (AT (LOCAL | TIME ZONE concatenation) | interval_expression)?
+    : concatenation_mod (BAR BAR concatenation_mod)*
+    ;
+
+concatenation_mod
+    : concatentaion_add (MOD concatentaion_add)*
+    ;
+
+concatentaion_add
+    : concatenation_mult ((PLUS_SIGN | MINUS_SIGN) concatenation_mult)*
+    ;
+
+concatenation_mult
+    : concatenation_expr ((ASTERISK | SOLIDUS) concatenation_expr)*
+    ;
+
+concatenation_expr
+    : model_expression (AT (LOCAL | TIME ZONE concatenation) | interval_expression)?
     ;
 
 interval_expression
