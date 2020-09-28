@@ -145,7 +145,7 @@ ARROW              : '->';
 
 OPEN_PAREN         : '(' {IncIndentLevel();};
 CLOSE_PAREN        : ')' {DecIndentLevel();};
-OPEN_BRACE         : '{' {IncIndentLevel();};
+OPEN_BRACE         : '{' {IncIndentLevel(); CheckIfFormatSpecifier(); };
 CLOSE_BRACE        : '}' {DecIndentLevel(); PopModeOnInterpolatedExpressionClose();};
 OPEN_BRACKET       : '[' {IncIndentLevel();};
 CLOSE_BRACKET      : ']' {DecIndentLevel();};
@@ -180,10 +180,14 @@ WS                 : [ \t]+            {HandleSpaces();}   -> channel(HIDDEN);
 COMMENT            :'#'  { !IsConversionInsideInterpolation() }? ~[\r\n\f]* -> channel(HIDDEN);
 
 mode InterpolationString;
-ESCAPED_BRACKET: '{{' -> type(STRING_PART);
-INTERPOLATION_EXPRESSION: '{' { SetInsideString(); }-> channel(HIDDEN), pushMode(DEFAULT_MODE);
-CLOSE_STRING: ('"' | '\'') { CheckIfClosedQuote(); };
-STRING_PART: INTERPOLATION_SHORT_STRING_ITEM+;
+ESCAPED_BRACKET           : '{{' -> type(STRING_PART);
+INTERPOLATION_EXPRESSION  : '{' { SetInsideString(); }-> channel(HIDDEN), pushMode(DEFAULT_MODE);
+CLOSE_STRING              : ('"' | '\'') { CheckIfClosedQuote(); };
+STRING_PART               : INTERPOLATION_SHORT_STRING_ITEM+;
+
+mode InterpolationFormat;
+CLOSE_BRACE_INSIDE        : '}' { DecIndentLevel(); } -> skip, popMode;
+FORMAT_STRING             : ~'}'+ -> type(FORMAT_SPEC);
 
 // Fragments
 

@@ -238,5 +238,28 @@ namespace PythonParseTree
         }
 
         protected bool IsConversionInsideInterpolation() => _insideString;
+
+        protected void CheckIfFormatSpecifier()
+        {
+            if (_insideString && (_input.La(-2) == '.' || _input.La(-2) == ':'))
+            {
+                int ind = 1;
+                bool switchToFormatString = true;
+                while ((char)_input.La(ind) != '}')
+                {
+                    if (_input.La(ind) == ':' || _input.La(ind) == ')')
+                    {
+                        switchToFormatString = false;
+                        break;
+                    }
+                    ind++;
+                }
+
+                if (switchToFormatString)
+                {
+                    PushMode(PythonLexer.InterpolationFormat);
+                }
+            }
+        }
     }
 }
