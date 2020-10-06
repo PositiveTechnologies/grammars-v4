@@ -287,7 +287,9 @@ atom
     | {CheckVersion(3)}? (TRUE | FALSE)
     ;
 
-string_literal : string_literal_part+;
+string_literal
+    : string_literal_part+
+    ;
 
 string_literal_part
     : STRING
@@ -299,7 +301,9 @@ string_literal_content
     | replacement_field
 	;
 
-replacement_field: (expr | testlist_star_expr | yield_expr | FORMAT_SPEC) ASSIGN? CONVERSION? ((COLON | DOT) (FORMAT_SPEC | OPEN_BRACE? replacement_field CLOSE_BRACE?))*;
+replacement_field
+    : (expr | testlist_star_expr | yield_expr | CONVERSION) ASSIGN? CONVERSION? ((COLON | DOT) (CONVERSION | OPEN_BRACE? replacement_field CLOSE_BRACE?))*
+    ;
 
 dictorsetmaker
     : dic_item_init (COMMA dic_item_init)* COMMA? // key_datum_list

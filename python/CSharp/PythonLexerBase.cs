@@ -13,7 +13,7 @@ namespace PythonParseTree
 
         private int _fInterpolatedLevel;
 
-        public static int TabSize { get; set; } = 8;
+        public static int TabSize { get; } = 8;
 
         public PythonVersion Version { get; set; }
 
@@ -232,34 +232,19 @@ namespace PythonParseTree
             }
             else
             {
-                var s = new string(new char[] { (char) _input.La(-1) });
+                var s = new string(new[] { (char) _input.La(-1) });
                 Emit(PythonLexer.STRING_PART, DefaultTokenChannel, s);
             }
         }
 
-        protected bool IsConversionInsideInterpolation() => _insideString;
-
-        protected void CheckIfFormatSpecifier()
+        protected bool SwitchIfFormatSpecifierStarts()
         {
-            if (_insideString && (_input.La(-2) == '.' || _input.La(-2) == ':'))
+            if (_insideString && _mode != PythonLexer.InterpolationFormat)
             {
-                int ind = 1;
-                bool switchToFormatString = true;
-                while ((char)_input.La(ind) != '}')
-                {
-                    if (_input.La(ind) == ':' || _input.La(ind) == ')')
-                    {
-                        switchToFormatString = false;
-                        break;
-                    }
-                    ind++;
-                }
-
-                if (switchToFormatString)
-                {
-                    PushMode(PythonLexer.InterpolationFormat);
-                }
+                PushMode(PythonLexer.InterpolationFormat);
             }
+
+            return _insideString;
         }
     }
 }
