@@ -157,7 +157,8 @@ CONVERSION: '!' ('r' | 's' | 'a') { SwitchIfFormatSpecifierStarts() }?;
 STRING             : [uU]? [rR]? (SHORT_STRING | LONG_STRING)
                    | ([bB] [rR]? | [rR] [bB]) (SHORT_BYTES | LONG_BYTES);
 
-FSTRING_QUOTE      :  ([fF] [rR]? | [rR] [fF]) ('"' | '\'') { PushFstringQuote(); } -> pushMode(InterpolationString);
+FSTRING_TRIPLE_QUOTE:  ([fF] [rR]? | [rR] [fF]) ('"""' | '\'\'\'') { PushFstringQuote(); } -> pushMode(InterpolationMultiLineString);
+FSTRING_QUOTE      :  ([fF] [rR]? | [rR] [fF]) ('"' | '\'') { PushFstringQuote(); }        -> pushMode(InterpolationString);
 
 DECIMAL_INTEGER    : [1-9] [0-9_]*
                    | '0' [0_]*
@@ -179,11 +180,19 @@ WS                 : [ \t]+            {HandleSpaces();}   -> channel(HIDDEN);
 COMMENT            : '#' ~[\r\n\f]*                        -> channel(HIDDEN);
 
 mode InterpolationString;
-ESCAPED_OPEN_BRACKET      : '{{'                       -> type(STRING_PART);
-ESCAPED_CLOSE_BRACKET     : '}}'                       -> type(STRING_PART);
-INTERPOLATION_EXPRESSION  : '{' { SetInsideString(); } -> channel(HIDDEN), pushMode(DEFAULT_MODE);
-CLOSE_STRING              : ('"' | '\'') { CheckIfClosedQuote(); };
-STRING_PART               : INTERPOLATION_SHORT_STRING_ITEM+;
+ESCAPED_OPEN_BRACE       : '{{'                       -> type(STRING_PART);
+ESCAPED_CLOSE_BRACE      : '}}'                       -> type(STRING_PART);
+INTERPOLATION_EXPRESSION : '{' { SetInsideString(); } -> channel(HIDDEN), pushMode(DEFAULT_MODE);
+CLOSE_STRING             : ('"' | '\'') { CheckIfClosedQuote(); };
+STRING_PART              : INTERPOLATION_SHORT_STRING_ITEM+;
+
+mode InterpolationMultiLineString;
+ESCAPED_MULTI_OPEN_BRACE  : '{{'                       -> type(MULTI_STRING_PART);
+ESCAPED_MULTI_CLOSE_BRACE : '}}'                       -> type(MULTI_STRING_PART);
+INTERPOLATION_MULTI_EXPR  : '{' { SetInsideString(); } -> channel(HIDDEN), pushMode(DEFAULT_MODE);
+CLOSE_MULTI_STRING        : ('"""' | '\'\'\'') { CheckIfClosedQuote(); };
+SINGLE_QUOTE              : ('"' | '\'') -> type(MULTI_STRING_PART);
+MULTI_STRING_PART         : (INTERPOLATION_SHORT_STRING_ITEM | '\n' | '\r' | '\t')+;
 
 mode InterpolationFormat;
 FORMAT_STRING             : ~'}'+ -> type(CONVERSION);
@@ -199,6 +208,10 @@ fragment SHORT_STRING
 fragment LONG_STRING
     : '\'\'\'' LONG_STRING_ITEM*? '\'\'\''
     | '"""' LONG_STRING_ITEM*? '"""'
+    ;
+
+fragment INTERPOLATION_LONG_STRING_ITEM
+    :~'\\' | '\\' (RN | .)
     ;
 
 fragment INTERPOLATION_SHORT_STRING_ITEM

@@ -294,7 +294,13 @@ string_literal
 string_literal_part
     : STRING
     | FSTRING_QUOTE string_literal_content* CLOSE_STRING
+    | FSTRING_TRIPLE_QUOTE multi_string_literal_content* CLOSE_MULTI_STRING
     ;
+
+multi_string_literal_content
+    : MULTI_STRING_PART+
+	| replacement_field
+	;
 
 string_literal_content
     : STRING_PART
