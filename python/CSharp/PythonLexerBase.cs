@@ -232,14 +232,20 @@ namespace PythonParseTree
             }
             else
             {
-                var s = new string(new[] { (char) _input.La(-1) });
-                Emit(PythonLexer.STRING_PART, DefaultTokenChannel, s);
+                if (_mode == PythonLexer.InterpolationString)
+                {
+                    Emit(PythonLexer.STRING_PART, DefaultTokenChannel, new string((char) _input.La(-1), 1));
+                }
+                else
+                {
+                    Emit(PythonLexer.MULTI_STRING_PART, DefaultTokenChannel, new string((char) _input.La(-1), 3));
+                }
             }
         }
 
         protected bool SwitchIfFormatSpecifierStarts()
         {
-            if (_insideString && _mode != PythonLexer.InterpolationFormat) //&& (_input.La(-2) == ':' || _input.La(-2) == '.'))
+            if (_insideString && _mode != PythonLexer.InterpolationFormat)
             {
                 int ind = 1;
                 bool switchToFormatString = true;
@@ -257,7 +263,6 @@ namespace PythonParseTree
                 {
                     PushMode(PythonLexer.InterpolationFormat);
                 }
-                //PushMode(PythonLexer.InterpolationFormat);
             }
 
             return _insideString;

@@ -196,7 +196,7 @@ MULTI_STRING_PART         : (INTERPOLATION_SHORT_STRING_ITEM | '\n' | '\r' | '\t
 
 mode InterpolationFormat;
 FORMAT_STRING             : ~'}'+ -> type(CONVERSION);
-CLOSE_BRACE_INSIDE        : '}' { DecIndentLevel(); PopModeOnInterpolatedExpressionClose(); } -> skip, popMode;
+CLOSE_BRACE_INSIDE        : '}' { DecIndentLevel(); PopModeOnInterpolatedExpressionClose(); } -> channel(HIDDEN), popMode;
 
 // Fragments
 
@@ -208,10 +208,6 @@ fragment SHORT_STRING
 fragment LONG_STRING
     : '\'\'\'' LONG_STRING_ITEM*? '\'\'\''
     | '"""' LONG_STRING_ITEM*? '"""'
-    ;
-
-fragment INTERPOLATION_LONG_STRING_ITEM
-    :~'\\' | '\\' (RN | .)
     ;
 
 fragment INTERPOLATION_SHORT_STRING_ITEM
