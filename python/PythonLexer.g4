@@ -180,6 +180,7 @@ WS                 : [ \t]+            {HandleSpaces();}   -> channel(HIDDEN);
 COMMENT            : '#' ~[\r\n\f]*                        -> channel(HIDDEN);
 
 mode InterpolationString;
+
 ESCAPED_OPEN_BRACE       : '{{'                       -> type(STRING_PART);
 ESCAPED_CLOSE_BRACE      : '}}'                       -> type(STRING_PART);
 INTERPOLATION_EXPRESSION : '{' { SetInsideString(); } -> channel(HIDDEN), pushMode(DEFAULT_MODE);
@@ -187,6 +188,7 @@ CLOSE_STRING             : ('"' | '\'') { CheckIfClosedQuote(); };
 STRING_PART              : INTERPOLATION_SHORT_STRING_ITEM+;
 
 mode InterpolationMultiLineString;
+
 ESCAPED_MULTI_OPEN_BRACE  : '{{'                       -> type(MULTI_STRING_PART);
 ESCAPED_MULTI_CLOSE_BRACE : '}}'                       -> type(MULTI_STRING_PART);
 INTERPOLATION_MULTI_EXPR  : '{' { SetInsideString(); } -> channel(HIDDEN), pushMode(DEFAULT_MODE);
@@ -195,6 +197,7 @@ SINGLE_QUOTE              : ('"' | '\'') -> type(MULTI_STRING_PART);
 MULTI_STRING_PART         : (INTERPOLATION_SHORT_STRING_ITEM | '\n' | '\r' | '\t')+;
 
 mode InterpolationFormat;
+
 FORMAT_STRING             : ~'}'+ -> type(CONVERSION);
 CLOSE_BRACE_INSIDE        : '}' { DecIndentLevel(); PopModeOnInterpolatedExpressionClose(); } -> channel(HIDDEN), popMode;
 

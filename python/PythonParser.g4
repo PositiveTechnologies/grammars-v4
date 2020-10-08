@@ -299,13 +299,13 @@ string_literal_part
 
 multi_string_literal_content
     : MULTI_STRING_PART+
-	| replacement_field
-	;
+    | replacement_field
+    ;
 
 string_literal_content
     : STRING_PART
     | replacement_field
-	;
+    ;
 
 replacement_field
     : (expr | testlist_star_expr | yield_expr | CONVERSION) ASSIGN? CONVERSION? ((COLON | DOT) (CONVERSION | OPEN_BRACE? replacement_field CLOSE_BRACE?))*
