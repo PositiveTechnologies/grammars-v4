@@ -3,7 +3,7 @@ lexer grammar TypeScriptLexer;
 channels { ERROR }
 
 options {
-    superClass=TypeScriptBaseLexer;
+    superClass=TypeScriptLexerBase;
 }
 
 

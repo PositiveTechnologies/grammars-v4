@@ -5,9 +5,9 @@ using static TypeScriptParseTree.TypeScriptParser;
 /// All parser methods that used in grammar (p, prev, notLineTerminator, etc.)
 /// should start with lower case char similar to parser rules.
 /// </summary>
-public abstract class TypeScriptBaseParser : Parser
+public abstract class TypeScriptParserBase : Parser
 {
-    public TypeScriptBaseParser(ITokenStream input)
+    public TypeScriptParserBase(ITokenStream input)
         : base(input)
     {
     }

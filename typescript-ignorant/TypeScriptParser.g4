@@ -33,7 +33,7 @@ parser grammar TypeScriptParser;
 
 options {
     tokenVocab=TypeScriptLexer;
-    superClass=TypeScriptBaseParser;
+    superClass=TypeScriptParserBase;
 }
 
 // SupportSyntax

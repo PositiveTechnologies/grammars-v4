@@ -6,7 +6,7 @@ using static TypeScriptParseTree.TypeScriptLexer;
 /// All lexer methods that used in grammar (IsStrictMode)
 /// should start with Upper Case Char similar to Lexer rules.
 /// </summary>
-public abstract class TypeScriptBaseLexer : Lexer
+public abstract class TypeScriptLexerBase : Lexer
 {
     /// <summary>
     /// Stores values of nested modes. By default mode is strict or
@@ -28,7 +28,7 @@ public abstract class TypeScriptBaseLexer : Lexer
     /// </summary>
     private bool _useStrictCurrent = false;
 
-    public TypeScriptBaseLexer(ICharStream input)
+    public TypeScriptLexerBase(ICharStream input)
         : base(input)
     {
     }
