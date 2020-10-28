@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
+using PT.PM.AntlrUtils;
 using static GoParseTree.GoLexer;
 
 namespace GoParseTree
@@ -124,6 +125,21 @@ namespace GoParseTree
         protected bool checkPreviousTokenText(string text)
         {
             return _input.Lt(1).Text?.Equals(text) ?? false;
+        }
+
+        protected bool checkLineEquality()
+        {
+            var lineNumber = CurrentToken.Line;
+            int ind = CurrentToken.TokenIndex;
+            IToken prevToken;
+
+            do
+            {
+                ind--;
+                prevToken = _input.Get(ind);
+            } while (ind > 0 && prevToken.Channel == GoLexer.Hidden);
+
+            return ((LightToken)prevToken).LineColumnTextSpan.EndLine == lineNumber;
         }
     }
 }

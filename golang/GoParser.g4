@@ -160,7 +160,7 @@ incDecStmt
     ;
 
 assignment
-    : expressionList assign_op expressionList
+    : expressionList {checkLineEquality()}? assign_op expressionList
     ;
 
 assign_op
@@ -363,13 +363,12 @@ parameterDecl
     ;
 
 expression
-    : primaryExpr
-    | unaryExpr
-    | expression ('*' | '/' | '%' | '<<' | '>>' | '&' | '&^') expression
-    | expression ('+' | '-' | '|' | '^') expression
-    | expression ('==' | '!=' | '<' | '<=' | '>' | '>=') expression
-    | expression '&&' expression
-    | expression '||' expression
+    : unaryExpr
+    | expression {checkLineEquality()}? ('*' | '/' | '%' | '<<' | '>>' | '&' | '&^') expression
+    | expression {checkLineEquality()}? ('+' | '-' | '|' | '^') expression
+    | expression {checkLineEquality()}? ('==' | '!=' | '<' | '<=' | '>' | '>=') expression
+    | expression {checkLineEquality()}? '&&' expression
+    | expression {checkLineEquality()}? '||' expression
     ;
 
 primaryExpr
@@ -385,7 +384,7 @@ primaryExpr
 
 unaryExpr
     : primaryExpr
-    | ('+' | '-' | '!' | '^' | '*' | '&' | '<-') expression
+    | ('+' | '-' | '!' | '^' | '*' | '&' | '<-') unaryExpr
     ;
 
 conversion
