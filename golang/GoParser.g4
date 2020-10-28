@@ -139,12 +139,12 @@ statement
     ;
 
 simpleStmt
-    : sendStmt
+    : emptyStmt
     | assignment
     | expressionStmt
+    | sendStmt
     | incDecStmt
     | shortVarDecl
-    | emptyStmt
     ;
 
 expressionStmt
@@ -160,7 +160,7 @@ incDecStmt
     ;
 
 assignment
-    : expressionList {checkLineEquality()}? assign_op expressionList
+    : expressionList assign_op expressionList
     ;
 
 assign_op
@@ -364,11 +364,16 @@ parameterDecl
 
 expression
     : unaryExpr
-    | expression {checkLineEquality()}? ('*' | '/' | '%' | '<<' | '>>' | '&' | '&^') expression
-    | expression {checkLineEquality()}? ('+' | '-' | '|' | '^') expression
-    | expression {checkLineEquality()}? ('==' | '!=' | '<' | '<=' | '>' | '>=') expression
-    | expression {checkLineEquality()}? '&&' expression
-    | expression {checkLineEquality()}? '||' expression
+    | expression  ('*' | '/' | '%' | '<<' | '>>' | '&' | '&^') expression
+    | expression  ('+' | '-' | '|' | '^') expression
+    | expression  ('==' | '!=' | '<' | '<=' | '>' | '>=') expression
+    | expression '&&' expression
+    | expression '||' expression
+    ;
+
+unaryExpr
+    : primaryExpr
+    | ('+' | '-' | '!' | '^' | '*' | '&' | '<-') unaryExpr
     ;
 
 primaryExpr
@@ -380,11 +385,6 @@ primaryExpr
                   | slice
                   | typeAssertion
                   | arguments)
-    ;
-
-unaryExpr
-    : primaryExpr
-    | ('+' | '-' | '!' | '^' | '*' | '&' | '<-') unaryExpr
     ;
 
 conversion

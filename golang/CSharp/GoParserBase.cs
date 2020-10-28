@@ -137,7 +137,7 @@ namespace GoParseTree
             {
                 ind--;
                 prevToken = _input.Get(ind);
-            } while (ind > 0 && prevToken.Channel == GoLexer.Hidden);
+            } while (ind > 0 && prevToken.Channel == Lexer.Hidden);
 
             return ((LightToken)prevToken).LineColumnTextSpan.EndLine == lineNumber;
         }

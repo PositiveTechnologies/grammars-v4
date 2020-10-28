@@ -35,9 +35,13 @@
 
 lexer grammar GoLexer;
 
+options {
+    superClass=GoLexerBase;
+}
+
 // Keywords
 
-BREAK                  : 'break';
+BREAK                  : 'break' {HandleNewLine();};
 DEFAULT                : 'default';
 FUNC                   : 'func';
 INTERFACE              : 'interface';
@@ -53,28 +57,28 @@ GOTO                   : 'goto';
 PACKAGE                : 'package';
 SWITCH                 : 'switch';
 CONST                  : 'const';
-FALLTHROUGH            : 'fallthrough';
+FALLTHROUGH            : 'fallthrough' {HandleNewLine();};
 IF                     : 'if';
 RANGE                  : 'range';
 TYPE                   : 'type';
-CONTINUE               : 'continue';
+CONTINUE               : 'continue' {HandleNewLine();};
 FOR                    : 'for';
 IMPORT                 : 'import';
-RETURN                 : 'return';
+RETURN                 : 'return' {HandleNewLine();};
 VAR                    : 'var';
 
 NIL_LIT                : 'nil';
 
-IDENTIFIER             : LETTER (LETTER | UNICODE_DIGIT)*;
+IDENTIFIER             : LETTER (LETTER | UNICODE_DIGIT)* {HandleNewLine();};
 
 // Punctuation
 
 L_PAREN                : '(';
-R_PAREN                : ')';
+R_PAREN                : ')' {HandleNewLine();};
 L_CURLY                : '{';
-R_CURLY                : '}';
+R_CURLY                : '}' {HandleNewLine();};
 L_BRACKET              : '[';
-R_BRACKET              : ']';
+R_BRACKET              : ']' {HandleNewLine();};
 COMMA                  : ',';
 SEMI                   : ';';
 COLON                  : ':';
@@ -112,8 +116,8 @@ BIT_CLEAR              : '&^';
 // Unary operators
 
 EXCLAMATION            : '!';
-PLUS_PLUS              : '++';
-MINUS_MINUS            : '--';
+PLUS_PLUS              : '++' {HandleNewLine();};
+MINUS_MINUS            : '--' {HandleNewLine();};
 
 // Mixed operators
 
@@ -126,24 +130,24 @@ RECEIVE                : '<-';
 
 // Number literals
 
-DECIMAL_LIT            : [1-9] [0-9]*;
+DECIMAL_LIT            : [1-9] [0-9]* {HandleNewLine();};
 OCTAL_LIT              : '0' OCTAL_DIGIT*;
 HEX_LIT                : '0' [xX] HEX_DIGIT+;
 
-FLOAT_LIT              : DECIMALS ('.' DECIMALS? EXPONENT? | EXPONENT)
+FLOAT_LIT              : DECIMALS ('.' DECIMALS? EXPONENT? | EXPONENT) {HandleNewLine();}
                        | '.' DECIMALS EXPONENT?
                        ;
 
-IMAGINARY_LIT          : (DECIMALS | FLOAT_LIT) 'i';
+IMAGINARY_LIT          : (DECIMALS | FLOAT_LIT) 'i' {HandleNewLine();};
 
 // Rune literals
 
-RUNE_LIT               : '\'' (~[\n\\] | ESCAPED_VALUE) '\'';
+RUNE_LIT               : '\'' (~[\n\\] | ESCAPED_VALUE) '\'' {HandleNewLine();};
 
 // String literals
 
-RAW_STRING_LIT         : '`' ~'`'*                      '`';
-INTERPRETED_STRING_LIT : '"' (~["\\] | ESCAPED_VALUE)*  '"';
+RAW_STRING_LIT         : '`' ~'`'*                      '`' {HandleNewLine();};
+INTERPRETED_STRING_LIT : '"' (~["\\] | ESCAPED_VALUE)*  '"' {HandleNewLine();};
 
 // Hidden tokens
 
