@@ -1,32 +1,33 @@
+using System.Collections.Generic;
 using Antlr4.Runtime;
+using static GoParseTree.GoLexer;
 
 namespace GoParseTree
 {
     public abstract class GoLexerBase : Lexer
     {
-        private bool emitSemicolon;
+        private readonly HashSet<int> tokensToEmmitSemicolon = new HashSet<int>
+        {
+            IDENTIFIER, R_PAREN, R_CURLY, R_BRACKET, INTERPRETED_STRING_LIT, RAW_STRING_LIT, PLUS_PLUS, MINUS_MINUS,
+            DECIMAL_LIT, IMAGINARY_LIT, RUNE_LIT, FLOAT_LIT, BREAK, FALLTHROUGH, CONTINUE, RETURN
+        };
+
         protected GoLexerBase(ICharStream input) : base(input)
         {
         }
 
         public override IToken NextToken()
         {
-            if (emitSemicolon && _input.La(2) == '\n')
+            if (tokensToEmmitSemicolon.Contains(Type) && _input.La(2) == '\n')
             {
-                IToken token = _factory.Create(_tokenFactorySourcePair, GoLexer.SEMI, "", _channel, _tokenStartCharIndex, CharIndex - 1, _tokenStartLine, _tokenStartCharPositionInLine);
+                IToken token = _factory.Create(_tokenFactorySourcePair, SEMI, "", _channel, _tokenStartCharIndex,
+                    CharIndex - 1, _tokenStartLine, _tokenStartCharPositionInLine);
                 Emit(token);
-                emitSemicolon = false;
+                Type = token.Type;
                 return token;
             }
 
-            emitSemicolon = false;
-
             return base.NextToken();
-        }
-
-        protected void HandleNewLine()
-        {
-            emitSemicolon = true;
         }
     }
 }

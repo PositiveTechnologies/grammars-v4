@@ -41,7 +41,7 @@ options {
 
 // Keywords
 
-BREAK                  : 'break' {HandleNewLine();};
+BREAK                  : 'break';
 DEFAULT                : 'default';
 FUNC                   : 'func';
 INTERFACE              : 'interface';
@@ -57,28 +57,28 @@ GOTO                   : 'goto';
 PACKAGE                : 'package';
 SWITCH                 : 'switch';
 CONST                  : 'const';
-FALLTHROUGH            : 'fallthrough' {HandleNewLine();};
+FALLTHROUGH            : 'fallthrough';
 IF                     : 'if';
 RANGE                  : 'range';
 TYPE                   : 'type';
-CONTINUE               : 'continue' {HandleNewLine();};
+CONTINUE               : 'continue';
 FOR                    : 'for';
 IMPORT                 : 'import';
-RETURN                 : 'return' {HandleNewLine();};
+RETURN                 : 'return';
 VAR                    : 'var';
 
 NIL_LIT                : 'nil';
 
-IDENTIFIER             : LETTER (LETTER | UNICODE_DIGIT)* {HandleNewLine();};
+IDENTIFIER             : LETTER (LETTER | UNICODE_DIGIT)*;
 
 // Punctuation
 
 L_PAREN                : '(';
-R_PAREN                : ')' {HandleNewLine();};
+R_PAREN                : ')';
 L_CURLY                : '{';
-R_CURLY                : '}' {HandleNewLine();};
+R_CURLY                : '}';
 L_BRACKET              : '[';
-R_BRACKET              : ']' {HandleNewLine();};
+R_BRACKET              : ']';
 COMMA                  : ',';
 SEMI                   : ';';
 COLON                  : ':';
@@ -116,8 +116,8 @@ BIT_CLEAR              : '&^';
 // Unary operators
 
 EXCLAMATION            : '!';
-PLUS_PLUS              : '++' {HandleNewLine();};
-MINUS_MINUS            : '--' {HandleNewLine();};
+PLUS_PLUS              : '++';
+MINUS_MINUS            : '--';
 
 // Mixed operators
 
@@ -130,24 +130,24 @@ RECEIVE                : '<-';
 
 // Number literals
 
-DECIMAL_LIT            : [1-9] [0-9]* {HandleNewLine();};
+DECIMAL_LIT            : [1-9] [0-9]*;
 OCTAL_LIT              : '0' OCTAL_DIGIT*;
 HEX_LIT                : '0' [xX] HEX_DIGIT+;
 
-FLOAT_LIT              : DECIMALS ('.' DECIMALS? EXPONENT? | EXPONENT) {HandleNewLine();}
+FLOAT_LIT              : DECIMALS ('.' DECIMALS? EXPONENT? | EXPONENT)
                        | '.' DECIMALS EXPONENT?
                        ;
 
-IMAGINARY_LIT          : (DECIMALS | FLOAT_LIT) 'i' {HandleNewLine();};
+IMAGINARY_LIT          : (DECIMALS | FLOAT_LIT) 'i';
 
 // Rune literals
 
-RUNE_LIT               : '\'' (~[\n\\] | ESCAPED_VALUE) '\'' {HandleNewLine();};
+RUNE_LIT               : '\'' (~[\n\\] | ESCAPED_VALUE) '\'';
 
 // String literals
 
-RAW_STRING_LIT         : '`' ~'`'*                      '`' {HandleNewLine();};
-INTERPRETED_STRING_LIT : '"' (~["\\] | ESCAPED_VALUE)*  '"' {HandleNewLine();};
+RAW_STRING_LIT         : '`' ~'`'*                      '`';
+INTERPRETED_STRING_LIT : '"' (~["\\] | ESCAPED_VALUE)*  '"';
 
 // Hidden tokens
 
