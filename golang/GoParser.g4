@@ -53,11 +53,7 @@ importDecl
     ;
 
 importSpec
-    : ('.' | IDENTIFIER)? importPath
-    ;
-
-importPath
-    : string_
+    : ('.' | IDENTIFIER)? string_
     ;
 
 declaration
@@ -141,8 +137,8 @@ statement
 simpleStmt
     : emptyStmt
     | assignment
-    | expressionStmt
     | sendStmt
+    | expressionStmt
     | incDecStmt
     | shortVarDecl
     ;
@@ -204,7 +200,7 @@ deferStmt
     ;
 
 ifStmt
-    : 'if' (simpleStmt ';')? expression block ('else' (ifStmt | block))?
+    : 'if' (simpleStmt ';')? (operand | expression) block ('else' (ifStmt | block))?
     ;
 
 switchStmt
@@ -414,6 +410,7 @@ basicLit
 
 integer
     : DECIMAL_LIT
+    | BINARY_LIT
     | OCTAL_LIT
     | HEX_LIT
     | IMAGINARY_LIT
