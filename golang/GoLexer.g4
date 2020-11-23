@@ -130,7 +130,8 @@ RECEIVE                : '<-';
 
 // Number literals
 
-DECIMAL_LIT            : [1-9] [0-9]*;
+DECIMAL_LIT            : ('0' | [1-9] [0-9]*);
+BINARY_LIT             : '0' [bB] BINARY_DIGIT*;
 OCTAL_LIT              : '0' OCTAL_DIGIT*;
 HEX_LIT                : '0' [xX] HEX_DIGIT+;
 
@@ -172,6 +173,10 @@ fragment DECIMALS
 
 fragment OCTAL_DIGIT
     : [0-7]
+    ;
+
+fragment BINARY_DIGIT
+    : [01]
     ;
 
 fragment HEX_DIGIT
