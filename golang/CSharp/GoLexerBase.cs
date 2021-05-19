@@ -32,8 +32,9 @@ namespace GoParseTree
 
                 if (next == '\n' || (next == '/' && _input.La(index) == '/'))
                 {
-                    IToken token = _factory.Create(_tokenFactorySourcePair, SEMI, "", _channel, _tokenStartCharIndex,
-                        CharIndex - 1, _tokenStartLine, _tokenStartCharPositionInLine);
+                    //for case when eos is followed by comment location will be equal to location of comment start symbol ('/')
+                    IToken token = _factory.Create(_tokenFactorySourcePair, SEMI, "", _channel, CharIndex + 1,
+                        CharIndex + 1, _tokenStartLine, CharIndex + 1);
                     Emit(token);
                     Type = token.Type;
                     return token;
